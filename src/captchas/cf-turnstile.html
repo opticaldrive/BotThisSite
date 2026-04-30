@@ -5,19 +5,26 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
-    <form action="/captcha/cf-turnstile" method="POST">
-        <!-- Turnstile widget with basic configuration -->
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAADGOa6thMJ69dkrb"></div>
-        <button type="submit">Log in</button>
-    </form>
-    
-<!-- script
-  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-  async
-  defer
-></script> -->
+<div class = "cf-turnstile"
+data-sitekey = ""
+data-callback = "onTurnstileSuccess"></div>
 
-<!-- <div class="cf-turnstile" data-sitekey="0x4AAAAAADGOa6thMJ69dkrb"></div> -->
+<script>
+    function onTurnstileSuccess(token) {
+        console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
+        // todo: fetchy loll()
+
+        // No idea if this een works lol
+        fetch("/captchas/verify/cf-turnstile",{
+            method : "POST",
+            headers :{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({"token":token})
+        })
+
+    }
+</script>
 
 </body>
 </html>
