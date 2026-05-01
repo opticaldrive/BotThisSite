@@ -2,6 +2,10 @@ from fastapi import FastAPI, Query, Body
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+import asyncio
+import aiohttp
+
+import os
 
 app = FastAPI()
 
@@ -38,7 +42,19 @@ async def explodeCFTurnstle(token:str):
     return {"message": token}
 
 
-
+async def validateCFTurnstile(token:str, session:aiohttp.ClientSession):
+    url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    data = {
+        'secret': "asd",
+        'response': token
+    }
+    async with session.post(url=url, data=data) as response:
+        try:
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"Turnstile validation error: {e}")
+            return {'success': False, 'error-codes': ['internal-error']}
 
 
 
