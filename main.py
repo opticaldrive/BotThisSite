@@ -1,14 +1,26 @@
-from fastapi import FastAPI, Query, Body
+from fastapi import FastAPI, Query, Body, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+# validation via http request -> external
 import asyncio
 import aiohttp
 
+# aiohttp ssl sob macos issues ahhh
+import certifi
+import ssl
+ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+
+# env vars
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
+CF_SECRET_KEY = os.getenv("CF_SECRET_KEY")
 
 app = FastAPI()
 
+# app content
 
 @app.get("/")
 async def root():
@@ -19,56 +31,41 @@ challenge_pages = Jinja2Templates(directory= "src/captchas/challenges")
 
 # @app.get("/captchas/challenge/cf-turnstile")
 @app.get("/captchas/cf-turnstile")
-async def serveTurnstile():
+async def serveTurnstile(request: Request):
     # a
     #todo: serve htmls
     # return True
     return challenge_pages.TemplateResponse(
-        request={},
+        request=request,
         name="cf-turnstile.html"
     )
 
 
 @app.post("/captchas/verify/cf-turnstile")
-async def explodeCFTurnstle(token:str):
+async def explodeCFTurnstle(data:dict):
     # this is NOT the right approach to get query and body lol
     # ig i need types and stuff, tmr
     # rn its just curl -X POST  "localhost:8000/captchas/verify/cf-turnstile?token=mrrp"
+    token = data.get("token")
     print(token)
 
     # fix body logic above
 
     # cf: POST https://challenges.cloudflare.com/turnstile/v0/siteverify
-    return {"message": token}
-
-
-async def validateCFTurnstile(token:str, session:aiohttp.ClientSession):
     url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
     data = {
-        'secret': "asd",
+        'secret': CF_SECRET_KEY, # secret, i spent too long doing dotenv
         'response': token
     }
-    async with session.post(url=url, data=data) as response:
-        try:
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"Turnstile validation error: {e}")
-            return {'success': False, 'error-codes': ['internal-error']}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, data=data, ssl=ssl_ctx) as response:
+            try:
+                response.raise_for_status()
+                return await response.json()
+            except Exception as e:
+                print(f"Turnstile validation error: {e}")
+                return {'success': False, 'error-codes': ['internal-error']}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return validateCFTurnstile(token=token) # its funny how this never gets caleld so never errosrs lol
 
 
