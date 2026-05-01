@@ -1,14 +1,18 @@
 <!DOCTYPE html>
+<meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com">
+
 <html>
 <head>
     <title>BotThisSite: Cloudflare Turnstile Challenge</title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
+    <!-- Uncaught TurnstileError: [Cloudflare Turnstile] Error: 110200. -->
 <div class = "cf-turnstile"
-data-sitekey = ""
-data-callback = "onTurnstileSuccess"></div>
 
+data-sitekey = "3x00000000000000000000FF"
+data-callback = "onTurnstileSuccess"></div>
+<!-- data-sitekey = "0x4AAAAAADGOa6thMJ69dkrb" -->
 <script>
     function onTurnstileSuccess(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
