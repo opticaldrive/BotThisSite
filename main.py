@@ -61,11 +61,13 @@ async def explodeCFTurnstle(data:dict):
         async with session.post(url=url, data=data, ssl=ssl_ctx) as response:
             try:
                 response.raise_for_status()
-                return await response.json()
+                response_json = await response.json()
+                print(response_json)
+                return  response_json
             except Exception as e:
                 print(f"Turnstile validation error: {e}")
                 return {'success': False, 'error-codes': ['internal-error']}
 
-    return validateCFTurnstile(token=token) # its funny how this never gets caleld so never errosrs lol
+
 
 
