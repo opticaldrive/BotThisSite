@@ -5,7 +5,7 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 
 class User(SQLModel, table=True):
-    id: int | None = field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True)
     cloudflare_turnstiles_solved: int = Field(default=0)
 
@@ -41,6 +41,13 @@ app = FastAPI()
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+
+
+# https://ipv4.games/claim?name=whatever
+@app.get("/claim")
+def claim(username: str, session: SessionDep):
+
+    user = User(username=username)
 
 
 @app.post("/captchasolved/")
