@@ -51,7 +51,6 @@ def claim(name: str, session: SessionDep):
     user = User(username=name)
     statement = select(User).where(User.username == name)  # uh
     user = session.exec(statement).first()
-    user.cloudflare_turnstiles_solved += 1
 
     if not user:  # then user not existy
         user = User(username=name)
