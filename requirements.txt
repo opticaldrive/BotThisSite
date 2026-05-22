@@ -1,2 +1,5 @@
 aiohttp
-fastapi
+fastapi[standard]
+sqlmodel
+jinja2
+dotenv
