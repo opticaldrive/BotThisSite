@@ -11,13 +11,6 @@ class User(SQLModel, table=True):
     cloudflare_turnstiles_solved: int = Field(default=0)
 
 
-# class Hero(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     name: str = Field(index=True)
-#     age: int | None = Field(default=None, index=True)
-#     secret_name: str
-
-
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
@@ -63,52 +56,3 @@ def claim(name: str, session: SessionDep):
     session.refresh(user)
     # yay we refreshed user
     return user
-
-
-# @app.post("/captchasolved/")
-# def check_cf_turnstile(user: User, session: SessionDep):
-#     None
-
-
-# def create_hero(hero: Hero, session: SessionDep) -> Hero:
-#     session.add(hero)
-#     session.commit()
-#     session.refresh(hero)
-#     return hero
-
-
-# @app.post("/heroes/")
-# def create_hero(hero: Hero, session: SessionDep) -> Hero:
-#     session.add(hero)
-#     session.update
-#     session.commit()
-#     session.refresh(hero)
-#     return hero
-
-
-# @app.get("/heroes/")
-# def read_heroes(
-#     session: SessionDep,
-#     offset: int = 0,
-#     limit: Annotated[int, Query(le=100)] = 100,
-# ) -> list[Hero]:
-#     heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()
-#     return heroes
-
-
-# @app.get("/heroes/{hero_id}")
-# def read_hero(hero_id: int, session: SessionDep) -> Hero:
-#     hero = session.get(Hero, hero_id)
-#     if not hero:
-#         raise HTTPException(status_code=404, detail="Hero not found")
-#     return hero
-
-
-# @app.delete("/heroes/{hero_id}")
-# def delete_hero(hero_id: int, session: SessionDep):
-#     hero = session.get(Hero, hero_id)
-#     if not hero:
-#         raise HTTPException(status_code=404, detail="Hero not found")
-#     session.delete(hero)
-#     session.commit()
-#     return {"ok": True}
