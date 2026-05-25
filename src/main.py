@@ -93,11 +93,14 @@ challenge_pages = Jinja2Templates(directory="src/captchas/challenges")
 
 # @app.get("/captchas/challenge/cf-turnstile")
 @app.get("/captchas/cf-turnstile")
-async def serveTurnstile(request: Request):
+async def serveTurnstile(name: str, request: Request):
     # a
     # todo: serve htmls
     # return True
-    return challenge_pages.TemplateResponse(request=request, name="cf-turnstile.html")
+    print(name)
+    return challenge_pages.TemplateResponse(
+        request=request, name="cf-turnstile.html", context={"name": name}
+    )
 
 
 @app.post("/captchas/verify/cf-turnstile")
@@ -116,8 +119,8 @@ async def explodeCFTurnstle(name: str, data: dict, session: SessionDep):  # data
         "secret": CF_SECRET_KEY,  # secret, i spent too long doing dotenv
         "response": token,
     }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url=url, data=data, ssl=ssl_ctx) as response:
+    async with aiohttp.ClientSession() as aiosession:
+        async with aiosession.post(url=url, data=data, ssl=ssl_ctx) as response:
             try:
                 response.raise_for_status()
                 response_json = await response.json()
