@@ -101,7 +101,7 @@ async def serveTurnstile(request: Request):
 
 
 @app.post("/captchas/verify/cf-turnstile")
-async def explodeCFTurnstle(data: dict):
+async def explodeCFTurnstle(name: str, data: dict, session: SessionDep):  # data: dict):
     # this is NOT the right approach to get query and body lol
     # ig i need types and stuff, tmr
     # rn its just curl -X POST  "localhost:8000/captchas/verify/cf-turnstile?token=mrrp"
@@ -125,7 +125,25 @@ async def explodeCFTurnstle(data: dict):
                 if response_json["success"] == True:
                     None
                     # user cf count ++
+                    user = User(username=name)
+                    statement = select(User).where(User.username == name)  # uh
+                    user = session.exec(statement).first()
+
+                    if not user:  # then user not existy
+                        user = User(username=name)
+                        session.add(user)
+
+                    user.cloudflare_turnstiles_solved += 1
+                    print("did it add to ", user)
+                    session.add(user)
+                    session.commit()
+                    session.refresh(user)
+                response_json["uesrname"] = name
                 return response_json
             except Exception as e:
                 print(f"Turnstile validation error: {e}")
-                return {"success": False, "error-codes": ["internal-error"]}
+                return {
+                    "success": False,
+                    "error-codes": ["internal-error"],
+                    "username": name,
+                }
