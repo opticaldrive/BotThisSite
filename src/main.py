@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import Field, Session, SQLModel, create_engine, select, desc
 
 # validation via http request -> external
 import asyncio
@@ -32,7 +32,7 @@ app = FastAPI()
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True)
-    cloudflare_turnstiles_solved: int = Field(default=0)
+    cloudflare_turnstiles_solved: int = Field(default=0, index=True)
 
 
 sqlite_file_name = "database.db"
@@ -59,33 +59,20 @@ def on_startup():
     create_db_and_tables()
 
 
-# https://ipv4.games/claim?name=whatever
-@app.get("/claim")
-def claim(name: str, session: SessionDep):
-    # if usr hasnt spawned, spawn user
-    user = User(username=name)
-    statement = select(User).where(User.username == name)  # uh
-    user = session.exec(statement).first()
-
-    if not user:  # then user not existy
-        user = User(username=name)
-        session.add(user)
-
-    user.cloudflare_turnstiles_solved += 1
-    print("did it add")
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    # yay we refreshed user
-    return user
-
-
 # app content
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.get("/leaderboard")
+async def get_leaderboard(session: SessionDep):
+    statement = select(User).order_by(desc(User.cloudflare_turnstiles_solved))
+    users = session.exec(statement).all()
+    print(users)
+    return users
 
 
 challenge_pages = Jinja2Templates(directory="src/captchas/challenges")
@@ -150,3 +137,24 @@ async def explodeCFTurnstle(name: str, data: dict, session: SessionDep):  # data
                     "error-codes": ["internal-error"],
                     "username": name,
                 }
+
+
+# # https://ipv4.games/claim?name=whatever
+# @app.get("/claim")
+# def claim(name: str, session: SessionDep):
+#     # if usr hasnt spawned, spawn user
+#     user = User(username=name)
+#     statement = select(User).where(User.username == name)  # uh
+#     user = session.exec(statement).first()
+
+#     if not user:  # then user not existy
+#         user = User(username=name)
+#         session.add(user)
+
+#     user.cloudflare_turnstiles_solved += 1
+#     print("did it add")
+#     session.add(user)
+#     session.commit()
+#     session.refresh(user)
+#     # yay we refreshed user
+#     return user
