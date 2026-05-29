@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlmodel import Field, Session, SQLModel, create_engine, select, desc
+from sqlmodel import Field, Session, SQLModel, create_engine, select, desc, func
 
 # validation via http request -> external
 import asyncio
@@ -92,10 +92,13 @@ async def serveTurnstile(request: Request, session: SessionDep):
     )
     # users = session.exec(statement).all()
     users = session.exec(statement).all()
-
-    # print(users)
+    total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
+    total_solved = session.exec(total_statement).one()
+    # print(users)s
     return leaderboard_page.TemplateResponse(
-        request=request, name="leaderboard.html", context={"users": users}
+        request=request,
+        name="leaderboard.html",
+        context={"users": users, "total_solved": total_solved},
     )
 
 
