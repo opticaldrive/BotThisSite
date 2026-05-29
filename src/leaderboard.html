@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>BotThisSite Leaderboard</title>
+</head>
+<body>
+<h1>Leaderboard</h1>
+<table>
+<thead>
+
+    <tr>
+        <th>
+            Rank
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Captchas Solved :3
+        </th>
+    </tr>
+</thead>
+
+<tbody>
+
+    {% for user in users %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.cloudflare_turnstiles_solved}}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+</body>
+</html>
