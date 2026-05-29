@@ -67,12 +67,36 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/leaderboard")
+@app.get("/api/leaderboard")
 async def get_leaderboard(session: SessionDep):
     statement = select(User).order_by(desc(User.cloudflare_turnstiles_solved))
     users = session.exec(statement).all()
     print(users)
     return users
+
+
+leaderboard_page = Jinja2Templates(
+    directory="src/"
+)  # todo -  move everything to static
+
+
+# @app.get("/captchas/challenge/cf-turnstile")
+@app.get("/leaderboard")
+async def serveTurnstile(request: Request, session: SessionDep):
+    # a
+    # todo: serve htmls
+    # return True
+    statement = (
+        select(User).order_by(desc(User.cloudflare_turnstiles_solved))
+        # .limit(100)  # limit 100 t?
+    )
+    # users = session.exec(statement).all()
+    users = session.exec(statement).all()
+
+    # print(users)
+    return leaderboard_page.TemplateResponse(
+        request=request, name="leaderboard.html", context={"users": users}
+    )
 
 
 challenge_pages = Jinja2Templates(directory="src/captchas/challenges")
