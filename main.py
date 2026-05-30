@@ -75,6 +75,13 @@ async def get_leaderboard(session: SessionDep):
     return users
 
 
+@app.get("/api/total_captchas")
+async def get_leaderboard(session: SessionDep):
+    total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
+    total_solved = session.exec(total_statement).one()
+    return total_solved
+
+
 static = Jinja2Templates(directory="static/")  # todo -  move everything to static
 
 
@@ -116,7 +123,7 @@ async def serveTurnstile(name: str, request: Request):
 
 
 @app.post("/captchas/verify/cf-turnstile")
-async def explodeCFTurnstle(name: str, data: dict, session: SessionDep):  # data: dict):
+async def verifyCFTurnstile(name: str, data: dict, session: SessionDep):  # data: dict):
     # this is NOT the right approach to get query and body lol
     # ig i need types and stuff, tmr
     # rn its just curl -X POST  "localhost:8000/captchas/verify/cf-turnstile?token=mrrp"
