@@ -75,9 +75,7 @@ async def get_leaderboard(session: SessionDep):
     return users
 
 
-leaderboard_page = Jinja2Templates(
-    directory="src/"
-)  # todo -  move everything to static
+static = Jinja2Templates(directory="static/")  # todo -  move everything to static
 
 
 # @app.get("/captchas/challenge/cf-turnstile")
@@ -95,14 +93,14 @@ async def serveTurnstile(request: Request, session: SessionDep):
     total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
     total_solved = session.exec(total_statement).one()
     # print(users)s
-    return leaderboard_page.TemplateResponse(
+    return static.TemplateResponse(
         request=request,
         name="leaderboard.html",
         context={"users": users, "total_solved": total_solved},
     )
 
 
-challenge_pages = Jinja2Templates(directory="src/captchas/challenges")
+# challenge_pages = Jinja2Templates(directory="src/captchas/challenges")
 
 
 # @app.get("/captchas/challenge/cf-turnstile")
@@ -112,8 +110,8 @@ async def serveTurnstile(name: str, request: Request):
     # todo: serve htmls
     # return True
     print(name)
-    return challenge_pages.TemplateResponse(
-        request=request, name="cf-turnstile.html", context={"name": name}
+    return static.TemplateResponse(
+        request=request, name="challenges/cf-turnstile.html", context={"name": name}
     )
 
 
