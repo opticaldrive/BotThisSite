@@ -1,18 +1,14 @@
 # copypasta sob s
 # leaderboard + stats wrapped in here
 # everything-in-one-file until i fix this mess
-from fastapi import FastAPI, Query, Body, Request, APIRouter
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+
 from sqlmodel import select, desc, func
 from models import User
 from database import SessionDep
 
 from config import CF_SECRET_KEY
-import asyncio
 import aiohttp
 
 # aiohttp ssl sob macos issues ahhh
