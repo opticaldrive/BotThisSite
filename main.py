@@ -8,8 +8,6 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Field, Session, SQLModel, create_engine, select, desc, func
 
 # validation via http request -> external
-import asyncio
-import aiohttp
 
 # aiohttp ssl sob macos issues ahhh
 import certifi
