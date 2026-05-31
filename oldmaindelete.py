@@ -14,14 +14,44 @@ import aiohttp
 # aiohttp ssl sob macos issues ahhh
 import certifi
 import ssl
-from models import User
-from database import SessionDep, create_db_and_tables
-from config import CF_SECRET_KEY
 
 ssl_ctx = ssl.create_default_context(cafile=certifi.where())
 
+# env vars
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CF_SECRET_KEY = os.getenv("CF_SECRET_KEY")
+
 app = FastAPI()
 # code based on example from fastapi wesbsite
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True)
+    cloudflare_turnstiles_solved: int = Field(default=0, index=True)
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 
 @app.on_event("startup")
@@ -52,9 +82,7 @@ async def get_leaderboard(session: SessionDep):
     return total_solved
 
 
-template = Jinja2Templates(
-    directory="templates/"
-)  # todo -  move everything to template
+static = Jinja2Templates(directory="static/")  # todo -  move everything to static
 
 
 # @app.get("/captchas/challenge/cf-turnstile")
@@ -72,7 +100,7 @@ async def serveTurnstile(request: Request, session: SessionDep):
     total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
     total_solved = session.exec(total_statement).one()
     # print(users)s
-    return template.TemplateResponse(
+    return static.TemplateResponse(
         request=request,
         name="leaderboard.html",
         context={"users": users, "total_solved": total_solved},
@@ -89,7 +117,7 @@ async def serveTurnstile(name: str, request: Request):
     # todo: serve htmls
     # return True
     print(name)
-    return template.TemplateResponse(
+    return static.TemplateResponse(
         request=request, name="challenges/cf-turnstile.html", context={"name": name}
     )
 
@@ -141,3 +169,24 @@ async def verifyCFTurnstile(name: str, data: dict, session: SessionDep):  # data
                     "error-codes": ["internal-error"],
                     "username": name,
                 }
+
+
+# # https://ipv4.games/claim?name=whatever
+# @app.get("/claim")
+# def claim(name: str, session: SessionDep):
+#     # if usr hasnt spawned, spawn user
+#     user = User(username=name)
+#     statement = select(User).where(User.username == name)  # uh
+#     user = session.exec(statement).first()
+
+#     if not user:  # then user not existy
+#         user = User(username=name)
+#         session.add(user)
+
+#     user.cloudflare_turnstiles_solved += 1
+#     print("did it add")
+#     session.add(user)
+#     session.commit()
+#     session.refresh(user)
+#     # yay we refreshed user
+#     return user
