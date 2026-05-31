@@ -19,7 +19,7 @@ templates = Jinja2Templates(
 )  # todo -  move everything to template
 
 
-@router.get("/leaderboard")
+@router.get("")
 async def get_leaderboard(request: Request, session: SessionDep):
     statement = (
         select(User).order_by(desc(User.cloudflare_turnstiles_solved))
@@ -36,6 +36,8 @@ async def get_leaderboard(request: Request, session: SessionDep):
         context={"users": users, "total_solved": total_solved},
     )
 
+
+# ui views tbd
 
 # @router.get("/api/total_captchas")
 # async def get_total_captchas(session: SessionDep):
