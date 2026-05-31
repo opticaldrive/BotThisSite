@@ -13,7 +13,7 @@ from database import SessionDep
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
-router = APIRouter(prefix="/api/", tags=["stats"])
+router = APIRouter(prefix="/api", tags=["stats"])
 
 
 @router.get("/leaderboard")
