@@ -1,3 +1,4 @@
+# refactor complete, minor route changes tbd + per user profiles
 # leaderboard + stats wrapped in here
 # everything-in-one-file until i fix this mess
 from fastapi import FastAPI, Query, Body, Request, APIRouter
@@ -12,7 +13,7 @@ from database import SessionDep
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
-router = APIRouter(prefix="/api/stats", tags=["stats"])
+router = APIRouter(prefix="/api/", tags=["stats"])
 
 
 @router.get("/leaderboard")
@@ -23,7 +24,7 @@ async def get_leaderboard(session: SessionDep):
     return users
 
 
-@router.get("/api/total_captchas")
+@router.get("/total_captchas")
 async def get_total_captchas(session: SessionDep):
     total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
     total_solved = session.exec(total_statement).one()

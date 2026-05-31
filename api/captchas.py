@@ -27,7 +27,7 @@ ssl_ctx = ssl.create_default_context(
 router = APIRouter(prefix="/captchas", tags=["stats"])
 
 
-@router.post("verify/cf-turnstile")
+@router.post("/verify/cf-turnstile")
 async def verify_cf_turnstile(
     name: str, data: dict, session: SessionDep
 ):  # data: dict):
@@ -76,18 +76,3 @@ async def verify_cf_turnstile(
                     "error-codes": ["internal-error"],
                     "username": name,
                 }
-
-
-@router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep):
-    statement = select(User).order_by(desc(User.cloudflare_turnstiles_solved))
-    users = session.exec(statement).all()
-    print(users)
-    return users
-
-
-@router.get("/api/total_captchas")
-async def get_total_captchas(session: SessionDep):
-    total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
-    total_solved = session.exec(total_statement).one()
-    return total_solved
