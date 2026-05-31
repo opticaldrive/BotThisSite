@@ -18,8 +18,9 @@ from models import User
 from database import SessionDep, create_db_and_tables
 from config import CF_SECRET_KEY
 
-ssl_ctx = ssl.create_default_context(cafile=certifi.where())
-
+ssl_ctx = ssl.create_default_context(
+    cafile=certifi.where()
+)  # apparently removing this still breaks things uh
 app = FastAPI()
 # code based on example from fastapi wesbsite
 
@@ -52,7 +53,7 @@ async def get_leaderboard(session: SessionDep):
     return total_solved
 
 
-template = Jinja2Templates(
+templates = Jinja2Templates(
     directory="templates/"
 )  # todo -  move everything to template
 
@@ -72,7 +73,7 @@ async def serveTurnstile(request: Request, session: SessionDep):
     total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
     total_solved = session.exec(total_statement).one()
     # print(users)s
-    return template.TemplateResponse(
+    return templates.TemplateResponse(
         request=request,
         name="leaderboard.html",
         context={"users": users, "total_solved": total_solved},
@@ -89,7 +90,7 @@ async def serveTurnstile(name: str, request: Request):
     # todo: serve htmls
     # return True
     print(name)
-    return template.TemplateResponse(
+    return templates.TemplateResponse(
         request=request, name="challenges/cf-turnstile.html", context={"name": name}
     )
 
