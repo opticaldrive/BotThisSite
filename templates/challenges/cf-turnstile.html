@@ -15,13 +15,15 @@ data-callback = "onTurnstileSuccess"></div>
 <!-- data-sitekey = "0x4AAAAAADGOa6thMJ69dkrb" 
 data-sitekey = "3x00000000000000000000FF" 
 -->
+Faithfully solving this Cloudflare Turnstile for the glory of
+{{name}} <!--istg if you xss this-->
 <script>
     function onTurnstileSuccess(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
         // todo: fetchy loll()
         const name = "{{name}}";
         // No idea if this een works lol
-        fetch("/captchas/verify/cf-turnstile?name={{name}}",{
+        fetch("/captchas/verify/cf-turnstile?name={{name | urlencode}}",{ //????
             method : "POST",
 
             headers :{
