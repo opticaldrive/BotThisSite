@@ -20,9 +20,7 @@ Faithfully solving this Cloudflare Turnstile for the glory of
 <script>
     function onTurnstileSuccess(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
-        // todo: fetchy loll()
-        const name = "{{name}}";
-        // No idea if this een works lol
+
         fetch("/captchas/verify/cf-turnstile?name={{name | urlencode}}",{ //????
             method : "POST",
 
