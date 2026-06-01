@@ -14,9 +14,10 @@ ssl_ctx = ssl.create_default_context(
 # custom omdules for now
 
 # misc config + core
-from models import User
+# from models import User
 from database import SessionDep, create_db_and_tables
-from config import CF_SECRET_KEY
+
+# from config import CF_SECRET_KEY
 
 # routes
 from api import leaderboard as api_leaderboard
