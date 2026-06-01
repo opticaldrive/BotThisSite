@@ -1,7 +1,7 @@
 # copypasta sob s
 # leaderboard + stats wrapped in here
 # everything-in-one-file until i fix this mess
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 
 from sqlmodel import select, desc, func
@@ -15,6 +15,23 @@ import aiohttp
 import certifi
 import ssl
 
+import unicodedata
+
+
+def clean_data(raw: str):
+    stringy = unicodedata.normalize("NFKC", (raw or "")).strip()
+    if not (1 <= len(stringy) <= 64):
+        print("out of lengthy")
+        raise HTTPException(
+            400,
+            "the name you have given me is simply too long, or simply too short. or nonexistant",
+        )
+    if any(unicodedata.category(c).startswith("C") for c in stringy):
+        print("controlly chars ew")
+        raise HTTPException(400, "name has control characters smh")
+    return stringy
+
+
 ssl_ctx = ssl.create_default_context(
     cafile=certifi.where()
 )  # apparently removing this still breaks things uh
@@ -24,18 +41,12 @@ router = APIRouter(prefix="/captchas", tags=["stats"])
 
 
 @router.post("/verify/cf-turnstile")
-async def verify_cf_turnstile(
-    name: str, data: dict, session: SessionDep
-):  # data: dict):
-    # this is NOT the right approach to get query and body lol
-    # ig i need types and stuff, tmr
-    # rn its just curl -X POST  "localhost:8000/captchas/verify/cf-turnstile?token=mrrp"
+async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
+    name = clean_data(name)
+
     token = data.get("token")
     print(token)
 
-    # fix body logic above
-
-    # cf: POST https://challenges.cloudflare.com/turnstile/v0/siteverify
     url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
     data = {
         "secret": CF_SECRET_KEY,  # secret, i spent too long doing dotenv
