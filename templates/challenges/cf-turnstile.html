@@ -9,37 +9,30 @@
 <body>
 
 <div class = "cf-turnstile"
+
 data-sitekey = "0x4AAAAAADGOa6thMJ69dkrb"
 data-callback = "onTurnstileSuccess"></div>
-<!--get this hardcoded sitekey out aaa-->
+<!-- data-sitekey = "0x4AAAAAADGOa6thMJ69dkrb" 
+data-sitekey = "3x00000000000000000000FF" 
+-->
 <script>
     function onTurnstileSuccess(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
         // todo: fetchy loll()
         const name = "{{name}}";
-        // it does infact work
-        // fetch("/captchas/verify/cf-turnstile?name={{name}}",{
-        //     method : "POST",
+        // No idea if this een works lol
+        fetch("/captchas/verify/cf-turnstile?name={{name}}",{
+            method : "POST",
 
-        //     headers :{
-        //         "Content-Type": "application/json"
-        //     },
+            headers :{
+                "Content-Type": "application/json"
+            },
 
-        //     body: JSON.stringify({"token":token})
-        // })
-        window._tsToken  = token;
+            body: JSON.stringify({"token":token})
+        })
 
     }
-
-    function actuallySubmitIt(){
-        const name = 
-    }
-
 </script>
-We're solving this cloudflare turnstile for:
-<form>
-<input id = "nameInput" type = "text" value="{{name or ''}}" > <!--google sys this works-->
-<button type="submit">Submit</button>
-</form>
+
 </body>
 </html>
