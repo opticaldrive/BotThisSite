@@ -11,8 +11,6 @@ from database import SessionDep
 from config import CF_SECRET_KEY
 import aiohttp
 
-from typing import Optional
-
 # aiohttp ssl sob macos issues ahhh
 import certifi
 import ssl
@@ -27,7 +25,7 @@ router = APIRouter(prefix="/captchas", tags=["stats"])
 
 @router.post("/verify/cf-turnstile")
 async def verify_cf_turnstile(
-    data: dict, session: SessionDep, name: Optional[str] = None
+    name: str, data: dict, session: SessionDep
 ):  # data: dict):
     # this is NOT the right approach to get query and body lol
     # ig i need types and stuff, tmr
