@@ -19,11 +19,14 @@ from database import SessionDep, create_db_and_tables
 
 # from config import CF_SECRET_KEY
 
+
 # routes
 from api import leaderboard as api_leaderboard
 from api import captchas as api_captchas
 
 # pages
+# homepage:
+from views import homepage as view_homepage
 from views import leaderboard as view_leaderboard
 from views import challenges as view_challenges
 
@@ -41,9 +44,9 @@ def on_startup():
 # app content
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+# @app.get("/")
+# async def root():
+#     return {"message": "Hello World"}
 
 
 # api routers
@@ -53,6 +56,7 @@ app.include_router(api_leaderboard.router)
 app.include_router(api_captchas.router)  # :3
 
 # page/view roters
+app.include_router(view_homepage.router)
 
 app.include_router(view_leaderboard.router)
 
