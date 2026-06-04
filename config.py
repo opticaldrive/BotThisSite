@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CF_SECRET_KEY = os.getenv("CF_SECRET_KEY")
+CF_SITE_KEY = os.getenv("CF_SITE_KEY")
 import certifi
 import ssl
 
