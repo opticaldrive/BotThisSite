@@ -52,15 +52,14 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
         "secret": CF_SECRET_KEY,  # secret, i spent too long doing dotenv
         "response": token,
     }
-    async with aiohttp.ClientSession() as aiosession:
-        async with aiosession.post(url=url, data=data, ssl=ssl_ctx) as response:
-            try:
+
+    try:
+        async with aiohttp.ClientSession() as aiosession:
+            async with aiosession.post(url=url, data=data, ssl=ssl_ctx) as response:
                 response.raise_for_status()
                 response_json = await response.json()
                 print(response_json)
                 if response_json["success"] == True:
-                    None
-                    # user cf count ++
                     user = User(username=name)
                     statement = select(User).where(User.username == name)  # uh
                     user = session.exec(statement).first()
@@ -74,12 +73,12 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                     session.add(user)
                     session.commit()
                     session.refresh(user)
-                response_json["uesrname"] = name
+                response_json["username"] = name
                 return response_json
-            except Exception as e:
-                print(f"Turnstile validation error: {e}")
-                return {
-                    "success": False,
-                    "error-codes": ["internal-error"],
-                    "username": name,
-                }
+    except Exception as e:
+        print(f"Turnstile validation error: {e}")
+        return {
+            "success": False,
+            "error-codes": ["internal-error"],
+            "username": name,
+        }
