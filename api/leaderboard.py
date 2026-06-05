@@ -25,3 +25,10 @@ async def get_total_captchas(session: SessionDep):
     total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
     total_solved = session.exec(total_statement).one()
     return total_solved
+
+
+@router.get("/total_captchas_json")  # jank but im lazy
+async def get_total_captchas_json(session: SessionDep):
+    total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
+    total_solved = session.exec(total_statement).one()
+    return {"total_solved": total_solved}
