@@ -15,6 +15,7 @@ The site is intentionally sparse until I add CSS, and you should memorize links
 
 ## Tech Stack:
 If premature optimization is a sin, then i should be in heaven for how tossed-together this is. \ 
+I personally feel like this should implode but its not! so good! \
 * Python - the ... language?  
 * FastAPI - the api thingy  
 * Jinja2 templates - for making pages with templates... 
@@ -26,3 +27,9 @@ If premature optimization is a sin, then i should be in heaven for how tossed-to
 ## Todo
 * Add more captchas 
 * gh shield 
+
+## AI Usage:
+* AI usage was kept low \
+* No AI coding tools(amp, codex, claude code) directly edited the code  - at the max were used for advice and troubleshooting(when i was frustrated lol)\
+* AI use was  under 30% \
+* Code is primarily human written, I intend to keep it this way.
