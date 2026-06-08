@@ -4,7 +4,7 @@ from database import SessionDep
 
 import time
 
-_cache = {"ts": 0, "data": None, "total_solved": None}
+_cache = {"ts": 0, "data": None, "total_solved": None, "cache_age": None}
 _ttl = 30
 
 
@@ -13,6 +13,8 @@ def get_stats(session: SessionDep):
     now = time.time()
     if _cache["data"] is None or now - _cache["ts"] > _ttl:
         update_stat_cache(session=session)
+    _cache["cache_age"] = max(int(now - _cache["ts"]), 0)
+
     return _cache
 
 

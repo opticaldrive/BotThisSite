@@ -14,8 +14,13 @@ templates = Jinja2Templates(directory="templates/")
 @router.get("")
 def get_leaderboard(request: Request, session: SessionDep):
     stats = get_stats(session=session)
+    print(stats)
     return templates.TemplateResponse(
         request=request,
         name="leaderboard.html",
-        context={"users": stats["users"], "total_solved": stats["total_solved"]},
+        context={
+            "users": stats["data"],
+            "total_solved": stats["total_solved"],
+            "cache_age": stats["cache_age"],
+        },
     )
