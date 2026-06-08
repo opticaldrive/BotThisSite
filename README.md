@@ -1,5 +1,5 @@
 # BotThisSite
-![Total Captchas Solved :2](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbts.zzz.hackclub.app%2Fapi%2Ftotal_captchas_json&query=%24.total_solved&label=Total%20CAPTCHAs%20Solved&color=purple)
+![CAPTCHAs Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbts.zzz.hackclub.app%2Fapi%2Ftotal_captchas_json&query=%24.total_solved&label=Total%20CAPTCHAs%20Solved&color=purple)
 
 We want you to absolutely not bot this site. \
 It's probably forbidden to bot this site. \ 

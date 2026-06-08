@@ -17,7 +17,7 @@ templates = Jinja2Templates(
 
 
 @router.get("")
-async def get_leaderboard(request: Request, session: SessionDep):
+def get_leaderboard(request: Request, session: SessionDep):
     statement = (
         select(User).order_by(desc(User.cloudflare_turnstiles_solved))
         # .limit(100)  # limit 100 t?
