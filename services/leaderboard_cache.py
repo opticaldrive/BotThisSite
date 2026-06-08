@@ -4,14 +4,22 @@ from database import SessionDep
 
 import time
 
-cache = {"ts": 0, "data": None, "total_solved": None}
-ttl = 30
+_cache = {"ts": 0, "data": None, "total_solved": None}
+_ttl = 30
+
+
+def get_stats(session: SessionDep):
+    # literally th only thing i need to access thumbsup
+    now = time.time()
+    if _cache["data"] is None or now - _cache["ts"] > _ttl:
+        update_stat_cache(session=session)
+    return _cache
 
 
 def update_stat_cache(session: SessionDep):
-    current_time = time.time()
+    now = time.time()
     if (
-        cache["data"] is None or current_time - cache["ts"] > ttl
+        _cache["data"] is None or now - _cache["ts"] > _ttl
     ):  # nonexistant cache!/updateudpate
         statement = (
             select(User).order_by(desc(User.cloudflare_turnstiles_solved))
@@ -22,6 +30,6 @@ def update_stat_cache(session: SessionDep):
 
         total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
         total_solved = session.exec(total_statement).one()
-        cache["data"] = users
-        cache["ts"] = current_time
-        cache["total_solved"] = total_solved
+        _cache["data"] = users
+        _cache["ts"] = now
+        _cache["total_solved"] = total_solved
