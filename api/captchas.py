@@ -69,7 +69,7 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                         session.add(user)
 
                     user.cloudflare_turnstiles_solved += 1
-                    # print("did it add to ", user)
+                    print("did it add to ", user)
                     session.add(user)
                     session.commit()
                     session.refresh(user)
