@@ -3,20 +3,18 @@
 
 <html>
 <head>
-    <title>BotThisSite: Cloudflare Turnstile Challenge blablabla</title>
+    <title>BotThisSite: Cloudflare Turnstile Challenge</title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
 <div class = "cf-turnstile"
-
 data-sitekey = "{{sitekey}}"
 data-callback = "onTurnstileSuccess"></div>
-<!-- data-sitekey = "0x4AAAAAADGOa6thMJ69dkrb" 
-data-sitekey = "3x00000000000000000000FF" 
--->
+
 Faithfully solving this Cloudflare Turnstile for the glory of
-<b>{{name}}</b> <!--istg if you xss this-->
+<b>{{name}}</b> <!--if you xss this--><br>
+<span id = "results"></span>
 <script>
     function onTurnstileSuccess(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
@@ -30,7 +28,26 @@ Faithfully solving this Cloudflare Turnstile for the glory of
 
             body: JSON.stringify({"token":token})
         })
+        .then(response => {
+            // console.log(response.json());
+            // data = response.json();
+            // console.log(data.success);
+            return response.json()
+        }).then(data=> {
+            console.log(data);
+            data.success 
+            const turnstileResult = document.getElementById("results");
+            if (data.success){
+                console.log(
+                    "actually a good kibty??"
+                );
+                turnstileResult.textContent = "Success: True"
+            }else{
+                console.log("hahaha you didnt do it womp womp");
+                turnstileResult.textContent = "Success: False"
+            }
 
+        })
     }
 </script>
 
