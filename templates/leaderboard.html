@@ -23,6 +23,12 @@ Last updated: {{cache_age}}s ago.
         <th>
             Captchas Solved
         </th>
+        <th>
+            Cloudflare Turnstiles Solved
+        </th>
+        <th>
+            Recaptcha v2 Solved
+        </th>
     </tr>
 </thead>
 
@@ -32,12 +38,14 @@ Last updated: {{cache_age}}s ago.
     <tr>
         <td>{{loop.index}}</td>
         <td>{{user.username}}</td>
+        <td>{{user.total_captchas_solved}}</td>
         <td>{{user.cloudflare_turnstiles_solved}}</td>
+        <td>{{user.recaptcha_v2_solved}}</td>
     </tr>
     {% endfor %}
 </tbody>
 </table>
-:3
+
 </body>
 </html>
 

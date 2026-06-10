@@ -21,12 +21,12 @@ async def serve_cf_turnstile(name: str, request: Request):
     )
 
 
-# @router.get("/recaptcha-v2")
-# async def serve_recaptcha_v2(name: str, request: Request):
-#     print(name)
-#     name = clean_data(name)
-#     return templates.TemplateResponse(
-#         request=request,
-#         name="challenges/recaptcha-v2.html",
-#         context={"name": name, "sitekey": RECAPTCHA_V2_SITE_KEY},
-#     )
+@router.get("/recaptcha-v2")
+async def serve_recaptcha_v2(name: str, request: Request):
+    print(name)
+    name = clean_data(name)
+    return templates.TemplateResponse(
+        request=request,
+        name="challenges/recaptcha-v2.html",
+        context={"name": name, "sitekey": RECAPTCHA_V2_SITE_KEY},
+    )
