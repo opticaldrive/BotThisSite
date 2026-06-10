@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 
 from sqlmodel import select, desc, func
-from models import User
+from models import User, SolveEvent
 from database import SessionDep
 
 from config import CF_SECRET_KEY, RECAPTCHA_V2_SECRET_KEY
@@ -16,6 +16,9 @@ import certifi
 import ssl
 
 import unicodedata
+
+
+import time
 
 
 def clean_data(raw: str):
@@ -60,7 +63,6 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                 response_json = await response.json()
                 print(response_json)
                 if response_json["success"] == True:
-                    user = User(username=name)
                     statement = select(User).where(User.username == name)  # uh
                     user = session.exec(statement).first()
 
@@ -69,10 +71,21 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                         session.add(user)
 
                     user.cloudflare_turnstiles_solved += 1
+
                     print("did it add to ", user)
+
+                    # db stuff
                     session.add(user)
+                    session.add(
+                        SolveEvent(
+                            user_id=user.id,
+                            captcha_type="cf-turnstile",
+                            solved_at=int(time.time()),
+                        )
+                    )
                     session.commit()
                     session.refresh(user)
+
                 response_json["username"] = name
                 return response_json
     except Exception as e:
@@ -80,7 +93,7 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
         return {
             "success": False,
             "error-codes": ["internal-error"],
-            "username": name,
+            "username": name,  # qol
         }
 
 
