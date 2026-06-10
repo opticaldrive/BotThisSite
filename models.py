@@ -5,11 +5,11 @@ import time
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True)
-    # total_captchas_solved: int = Field(default=0, index=True)
+    total_captchas_solved: int = Field(default=0, index=True)
     cloudflare_turnstiles_solved: int = Field(default=0, index=True)
-    # recaptcha_v2_solved: int = Field(
-    #     default=0, index=True
-    # )  # DO NOT PUSH TO PROD ANY OF THIS
+    recaptcha_v2_solved: int = Field(
+        default=0, index=True
+    )  # DO NOT PUSH TO PROD ANY OF THIS
 
 
 class SolveEvent(SQLModel, table=True):

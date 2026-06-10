@@ -1,9 +1,7 @@
-typing
-actually udnerstand fastapi
-url params
-db
-scoring
-
-
-more captchas
-basic prod on nest
+[]s utilize SolveEvents for *something*
+[]sbetter error logging, esp for failed verifications
+[]typing
+[]actually udnerstand fastapi
+[*]scoring
+[]more captchas
+[*]sbasic prod on nest

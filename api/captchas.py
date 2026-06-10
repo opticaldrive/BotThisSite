@@ -71,6 +71,7 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                         session.add(user)
 
                     user.cloudflare_turnstiles_solved += 1
+                    user.total_captchas_solved += 1
 
                     print("did it add to ", user)
 
@@ -98,45 +99,55 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
 
 # on hold until database is ready
 
-# @router.post("/verify/recaptcha-v2")
-# async def verify_recaptcha_v2(name: str, data: dict, session: SessionDep):
-#     name = clean_data(name)
-#     token = data.get("token")
-#     print(token)
 
-#     url = "https://www.google.com/recaptcha/api/siteverify"
-#     data = {
-#         "secret": RECAPTCHA_V2_SECRET_KEY,  # secret, i spent too long doing dotenv
-#         "response": token,
-#     }
+@router.post("/verify/recaptcha-v2")
+async def verify_recaptcha_v2(name: str, data: dict, session: SessionDep):
+    name = clean_data(name)
+    token = data.get("token")
+    print(token)
 
-#     try:
-#         async with aiohttp.ClientSession() as aiosession:
-#             async with aiosession.post(url=url, data=data, ssl=ssl_ctx) as response:
-#                 response.raise_for_status()
-#                 response_json = await response.json()
-#                 print(response_json)
-#                 # on hold until database is ready
-#                 # if response_json["success"] == True:
-#                 #     user = User(username=name)
-#                 #     statement = select(User).where(User.username == name)  # uh
-#                 #     user = session.exec(statement).first()
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    data = {
+        "secret": RECAPTCHA_V2_SECRET_KEY,  # secret, i spent too long doing dotenv
+        "response": token,
+    }
 
-#                 #     if not user:  # then user not existy
-#                 #         user = User(username=name)
-#                 #         session.add(user)
+    try:
+        async with aiohttp.ClientSession() as aiosession:
+            async with aiosession.post(url=url, data=data, ssl=ssl_ctx) as response:
+                response.raise_for_status()
+                response_json = await response.json()
+                print(response_json)
+                if response_json["success"] == True:
+                    statement = select(User).where(User.username == name)  # uh
+                    user = session.exec(statement).first()
 
-#                 #     user.cloudflare_turnstiles_solved += 1
-#                 #     print("did it add to ", user)
-#                 #     session.add(user)
-#                 #     session.commit()
-#                 #     session.refresh(user)
-#                 response_json["username"] = name
-#                 return response_json
-#     except Exception as e:
-#         print(f"Recaptcha validation error: {e}")
-#         return {
-#             "success": False,
-#             "error-codes": ["internal-error"],
-#             "username": name,
-#         }
+                    if not user:  # then user not existy
+                        user = User(username=name)
+                        session.add(user)
+
+                    user.recaptcha_v2_solved += 1
+                    user.total_captchas_solved += 1
+
+                    print("did it add to ", user)
+
+                    # db stuff
+                    session.add(user)
+                    session.add(
+                        SolveEvent(
+                            user_id=user.id,
+                            captcha_type="recaptcha-v2",
+                        )
+                    )
+                    session.commit()
+                    session.refresh(user)
+
+                response_json["username"] = name
+                return response_json
+    except Exception as e:
+        print(f"Recaptcha validation error: {e}")
+        return {
+            "success": False,
+            "error-codes": ["internal-error"],
+            "username": name,
+        }
