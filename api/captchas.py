@@ -80,7 +80,6 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
                         SolveEvent(
                             user_id=user.id,
                             captcha_type="cf-turnstile",
-                            solved_at=int(time.time()),
                         )
                     )
                     session.commit()
