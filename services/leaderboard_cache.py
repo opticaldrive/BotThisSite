@@ -24,13 +24,15 @@ def update_stat_cache(session: SessionDep):
         _cache["data"] is None or now - _cache["ts"] > _ttl
     ):  # nonexistant cache!/updateudpate
         statement = (
+            # select(User).order_by(desc(User.cloudflare_turnstiles_solved))
             select(User).order_by(desc(User.cloudflare_turnstiles_solved))
             # .limit(100)  # limit 100 t?
         )
         # users = session.exec(statement).all()
         users = session.exec(statement).all()
 
-        total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
+        # total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
+        total_statement = select(func.sum(User.total_captchas_solved))
         total_solved = session.exec(total_statement).one()
         _cache["data"] = users
         _cache["ts"] = now
