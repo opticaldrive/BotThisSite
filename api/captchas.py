@@ -77,6 +77,7 @@ async def verify_cf_turnstile(name: str, data: dict, session: SessionDep):
 
                     # db stuff
                     session.add(user)
+                    session.flush()
                     session.add(
                         SolveEvent(
                             user_id=user.id,
@@ -133,6 +134,7 @@ async def verify_recaptcha_v2(name: str, data: dict, session: SessionDep):
 
                     # db stuff
                     session.add(user)
+                    session.flush()  # assigns user.id for new users
                     session.add(
                         SolveEvent(
                             user_id=user.id,
