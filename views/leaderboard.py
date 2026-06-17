@@ -16,7 +16,7 @@ def get_leaderboard(request: Request, session: SessionDep, all: bool | None = Fa
     stats = get_stats(session=session)
     users = stats["data"]
     if not all:
-        users = users[:10]
+        users = users[:100]
 
     return templates.TemplateResponse(
         request=request,
