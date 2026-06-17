@@ -12,13 +12,17 @@ templates = Jinja2Templates(directory="templates/")
 
 
 @router.get("")
-def get_leaderboard(request: Request, session: SessionDep):
+def get_leaderboard(request: Request, session: SessionDep, all: bool | None = False):
     stats = get_stats(session=session)
+    users = stats["data"]
+    if not all:
+        users = users[:10]
+
     return templates.TemplateResponse(
         request=request,
         name="leaderboard.html",
         context={
-            "users": stats["data"],
+            "users": users,
             "total_solved": stats["total_solved"],
             "cache_age": stats["cache_age"],
         },
