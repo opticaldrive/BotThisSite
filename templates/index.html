@@ -20,5 +20,23 @@ Links: <br>
 <a href="/captchas/cf-turnstile">Solve Cloudflare Turnstiles(Append ?name=yourname to URL)</a>
 </p>
 
+Or, put your name here and we'll just make you the link: <br>
+<form id = "gotonamedcaptcha">
+    <label>
+        Name:
+        <input type="text" id="name" name="name" required>
+
+    </label>
+    <button type="submit">Go solve captchas?</button>
+</form>
+<script>
+  document.getElementById('gotonamedcaptcha').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    window.location.href = `/captchas/cf-turnstile?name=${encodeURIComponent(name)}`;
+  });
+</script>
+<footer><small>building this website as we fly it, since 2026</small></footer>
+
 </body>
 </html>
