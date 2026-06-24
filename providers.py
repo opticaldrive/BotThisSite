@@ -54,15 +54,15 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             site_key_env="CF_SITE_KEY",
             secret_key_env="CF_SECRET_KEY",
         ),
-        # CaptchaProvider(
-        #     slug="recaptcha-v2",
-        #     name="reCAPTCHA v2",
-        #     verify_url="https://www.google.com/recaptcha/api/siteverify",
-        #     script_url="https://www.google.com/recaptcha/api.js",
-        #     widget_class="g-recaptcha",
-        #     site_key_env="RECAPTCHA_V2_SITE_KEY",
-        #     secret_key_env="RECAPTCHA_V2_SECRET_KEY",
-        # ),
+        CaptchaProvider(
+            slug="recaptcha-v2",
+            name="reCAPTCHA v2",
+            verify_url="https://www.google.com/recaptcha/api/siteverify",
+            script_url="https://www.google.com/recaptcha/api.js",
+            widget_class="g-recaptcha",
+            site_key_env="RECAPTCHA_V2_SITE_KEY",
+            secret_key_env="RECAPTCHA_V2_SECRET_KEY",
+        ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
         #     slug="hcaptcha",
