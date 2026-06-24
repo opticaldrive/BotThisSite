@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import select, desc, func
 from models import User
 from database import SessionDep
-from services.leaderboard_cache import get_stats
+from services.leaderboard_cache import get_stats, captcha_columns
 
 router = APIRouter(prefix="/leaderboard", tags=["pages"])
 
@@ -23,6 +23,7 @@ def get_leaderboard(request: Request, session: SessionDep, all: bool | None = Fa
         name="leaderboard.html",
         context={
             "users": users,
+            "providers": captcha_columns(),
             "total_solved": stats["total_solved"],
             "cache_age": stats["cache_age"],
         },

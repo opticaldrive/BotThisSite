@@ -1,6 +1,7 @@
-from sqlmodel import select, desc, func
-from models import User
+from sqlmodel import select, func
+from models import User, SolveEvent
 from database import SessionDep
+from providers import PROVIDERS
 
 import time
 
@@ -20,20 +21,39 @@ def get_stats(session: SessionDep):
 
 def update_stat_cache(session: SessionDep):
     now = time.time()
-    if (
-        _cache["data"] is None or now - _cache["ts"] > _ttl
-    ):  # nonexistant cache!/updateudpate
-        statement = (
-            # select(User).order_by(desc(User.cloudflare_turnstiles_solved))
-            select(User).order_by(desc(User.cloudflare_turnstiles_solved))
-            # .limit(100)  # limit 100 t?
-        )
-        # users = session.exec(statement).all()
-        users = session.exec(statement).all()
+    if _cache["data"] is None or now - _cache["ts"] > _ttl:
+        # Counts are derived from SolveEvent, so any captcha registered in
+        # providers.py shows up automatically with no schema change.
+        rows = session.exec(
+            select(
+                User.id,
+                User.username,
+                SolveEvent.captcha_type,
+                func.count(SolveEvent.id),
+            )
+            .join(SolveEvent, SolveEvent.user_id == User.id)
+            .group_by(User.id, SolveEvent.captcha_type)
+        ).all()
 
-        # total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
-        total_statement = select(func.sum(User.total_captchas_solved))
-        total_solved = session.exec(total_statement).one()
+        # build {user_id: {"username":..., "total":..., "by_type": {...}}}
+        users_by_id: dict[int, dict] = {}
+        for user_id, username, captcha_type, count in rows:
+            entry = users_by_id.setdefault(
+                user_id,
+                {"username": username, "total": 0, "by_type": {}},
+            )
+            entry["by_type"][captcha_type] = count
+            entry["total"] += count
+
+        users = sorted(
+            users_by_id.values(), key=lambda u: u["total"], reverse=True
+        )
+
         _cache["data"] = users
         _cache["ts"] = now
-        _cache["total_solved"] = total_solved
+        _cache["total_solved"] = sum(u["total"] for u in users)
+
+
+# the captcha types to show as columns on the leaderboard, in registry order
+def captcha_columns():
+    return list(PROVIDERS.values())

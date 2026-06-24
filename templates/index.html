@@ -17,15 +17,25 @@ Number go up = good.<br>
 <p>
 Links: <br>
 <a href="/leaderboard">Leaderboard</a> <br>
-<a href="/captchas/cf-turnstile">Solve Cloudflare Turnstiles(Append ?name=yourname to URL)</a>
+(Append ?name=yourname to any captcha link below)<br>
+{% for provider in providers %}
+<a href="/captchas/{{provider.slug}}">Solve {{provider.name}}</a> <br>
+{% endfor %}
 </p>
 
-Or, put your name here and we'll just make you the link: <br>
+Or, put your name here and pick a captcha and we'll just make you the link: <br>
 <form id = "gotonamedcaptcha">
     <label>
         Name:
         <input type="text" id="name" name="name" required>
-
+    </label>
+    <label>
+        Captcha:
+        <select id="captcha">
+            {% for provider in providers %}
+            <option value="{{provider.slug}}">{{provider.name}}</option>
+            {% endfor %}
+        </select>
     </label>
     <button type="submit">Go solve captchas?</button>
 </form>
@@ -33,7 +43,8 @@ Or, put your name here and we'll just make you the link: <br>
   document.getElementById('gotonamedcaptcha').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('name').value;
-    window.location.href = `/captchas/cf-turnstile?name=${encodeURIComponent(name)}`;
+    const slug = document.getElementById('captcha').value;
+    window.location.href = `/captchas/${slug}?name=${encodeURIComponent(name)}`;
   });
 </script>
 <footer><small>building this website as we fly it, since 2026</small></footer>

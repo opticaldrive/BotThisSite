@@ -1,9 +1,9 @@
 from fastapi import Request, APIRouter
 from fastapi.templating import Jinja2Templates
 
-from sqlmodel import select, desc, func
-from models import User
 from database import SessionDep
+from services.leaderboard_cache import get_stats
+from providers import PROVIDERS
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
@@ -16,13 +16,14 @@ templates = Jinja2Templates(
 
 @router.get("/")
 async def get_homepage(request: Request, session: SessionDep):
-    total_statement = select(func.sum(User.cloudflare_turnstiles_solved))
-    total_solved = session.exec(total_statement).one()
-    # print(users)s
+    stats = get_stats(session=session)
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"total_solved": total_solved},
+        context={
+            "total_solved": stats["total_solved"],
+            "providers": list(PROVIDERS.values()),
+        },
     )
 
 
