@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BotThisSite: {{provider.name}} Challenge</title>
+    <script src="{{provider.script_url}}" async defer></script>
+</head>
+<body>
+
+<div class="{{provider.widget_class}}"
+     data-sitekey="{{sitekey}}"
+     data-callback="onCaptchaSolved"></div>
+
+Faithfully solving this {{provider.name}} for the glory of
+<b>{{name}}</b> <!--if you xss this--><br>
+<span id="results"></span>
+
+<script>
+    function onCaptchaSolved(token) {
+        console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
+
+        fetch("/captchas/verify/{{provider.slug}}?name={{name | urlencode}}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ "token": token })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const result = document.getElementById("results");
+            if (data.success) {
+                console.log("actually a good kibty??");
+                result.textContent = "Success: True";
+            } else {
+                console.log("hahaha you didnt do it womp womp");
+                result.textContent = "Success: False";
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
