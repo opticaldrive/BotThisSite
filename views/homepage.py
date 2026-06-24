@@ -15,7 +15,8 @@ templates = Jinja2Templates(
 
 
 @router.get("/")
-async def get_homepage(request: Request, session: SessionDep):
+def get_homepage(request: Request, session: SessionDep):  # sync = runs in threadpool,
+    # so its blocking DB work never stalls the event loop (matters under HN-spike load)
     stats = get_stats(session=session)
     return templates.TemplateResponse(
         request=request,
