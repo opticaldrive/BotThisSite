@@ -28,9 +28,18 @@ I personally feel like this should implode but its not! so good! \
 ## Todo
 * Add more captchas 
 * gh shield 
+* better activity stuff
 
 ## AI Usage:
+
 * AI usage was kept low \
-* No AI coding tools(amp, codex, claude code) directly edited the code  - at the max were used for advice and troubleshooting(when i was frustrated lol)\
-* AI use was  under 30% \
+* AI use was under 30% \
 * Code is primarily human written, I intend to keep it this way.
+* AI was used for assistance when i was stuck/confused how to continue.
+* Amp Code was one of the tools utilized.
+* I wish I had all the skills to efficiently do it how the LLM does it - while it makes mistakes, I do intend to still learn.
+
+
+## prod was on:
+commit e6b2d9aa9b64a1ae035dff71aa5e353336a6eeba (HEAD -> main, origin/main, origin/HEAD)
+
