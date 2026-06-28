@@ -1,13 +1,8 @@
-# refactor complete, minor route changes tbd + per user profiles
-# leaderboard + stats wrapped in here
-# everything-in-one-file until i fix this mess
 from fastapi import APIRouter
 
 from sqlmodel import select, desc, func
 from models import User
 from database import SessionDep
-
-# https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
 router = APIRouter(prefix="/api", tags=["stats"])
 
