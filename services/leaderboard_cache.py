@@ -1,7 +1,7 @@
 from sqlmodel import select
 from models import User, SolveCount
 from database import SessionDep
-from providers import PROVIDERS
+from providers import enabled_providers
 
 import time
 import threading
@@ -56,6 +56,7 @@ def update_stat_cache(session: SessionDep):
     _cache["total_solved"] = sum(u["total"] for u in users)
 
 
-# the captcha types to show as columns on the leaderboard, in registry order
+# the captcha types to show as columns on the leaderboard, in registry order.
+# disabled providers are hidden here but their counts remain in the DB.
 def captcha_columns():
-    return list(PROVIDERS.values())
+    return enabled_providers()
