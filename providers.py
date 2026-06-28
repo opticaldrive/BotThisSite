@@ -31,6 +31,10 @@ class CaptchaProvider:
     site_key_env: str  # name of the env var holding the public site key
     secret_key_env: str  # name of the env var holding the private secret key
     template: str = "challenges/generic.html"  # override for non-standard captchas
+    enabled: bool = True  # flip to False to temporarily retire a captcha.
+    # disabled providers 404 on the challenge + verify routes and vanish from the
+    # homepage/leaderboard UI, but their SolveCount/SolveEvent rows are preserved,
+    # so re-enabling (enabled=True) restores everything exactly as it was.
 
     @property
     def site_key(self) -> str | None:
@@ -62,6 +66,9 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             widget_class="g-recaptcha",
             site_key_env="RECAPTCHA_V2_SITE_KEY",
             secret_key_env="RECAPTCHA_V2_SECRET_KEY",
+            # TEMPORARILY DISABLED: hitting the 10k/mo siteverify limit + tokens
+            # were replayable on fail-open. DB data is kept; flip back to re-enable.
+            enabled=False,
         ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
@@ -77,11 +84,16 @@ PROVIDERS: dict[str, CaptchaProvider] = {
 }
 
 
+def enabled_providers() -> list[CaptchaProvider]:
+    """Providers to expose in the UI (homepage links, leaderboard columns)."""
+    return [p for p in PROVIDERS.values() if p.enabled]
+
+
 def get_provider(slug: str) -> CaptchaProvider:
-    """Look up a provider or raise a 404 for unknown slugs."""
+    """Look up a provider or raise a 404 for unknown/disabled slugs."""
     from fastapi import HTTPException
 
     provider = PROVIDERS.get(slug)
-    if provider is None:
+    if provider is None or not provider.enabled:
         raise HTTPException(404, f"unknown captcha provider: {slug!r}")
     return provider
