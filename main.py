@@ -32,9 +32,8 @@ from views import leaderboard as view_leaderboard
 from views import challenges as view_challenges
 from views import graphs as view_graphs
 
-# i uh am relying on vscode's "problems" tab without actually verifying so uh gl to me
-
 app = FastAPI()
+
 # code based on example from fastapi wesbsite
 
 
