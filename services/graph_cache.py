@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 
 from sqlmodel import select, func
-from models import SolveEvent
+from models import SolveEvent, User
 from database import SessionDep
 from providers import listed_providers
 
@@ -19,7 +19,7 @@ BUCKETS: dict[str, tuple[str, timedelta]] = {
 
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
 _ttl = 30
-_lock = threading.Lock()  # single-flight: only one rebuild at a time
+_lock = threading.Lock()  # single-flight: only one rebuild at a time # gulp idk waht this is
 
 
 def _expired(bucket: str, now: float) -> bool:
@@ -54,6 +54,9 @@ def get_solves_series(session: SessionDep, bucket: str = "day"):
                 }
     return _caches[bucket]["data"]
 
+
+def get_solves_user(session: SessionDep):
+    None
 
 def _build_series(session: SessionDep, bucket: str):
     fmt, _ = BUCKETS[bucket]
@@ -102,3 +105,4 @@ def _continuous_labels(raw_labels, bucket: str) -> list[str]:
         out.append(cur.strftime(fmt))
         cur += step
     return out
+
