@@ -31,10 +31,13 @@ class CaptchaProvider:
     site_key_env: str  # name of the env var holding the public site key
     secret_key_env: str  # name of the env var holding the private secret key
     template: str = "challenges/generic.html"  # override for non-standard captchas
-    enabled: bool = True  # flip to False to temporarily retire a captcha.
-    # disabled providers 404 on the challenge + verify routes and vanish from the
-    # homepage/leaderboard UI, but their SolveCount/SolveEvent rows are preserved,
-    # so re-enabling (enabled=True) restores everything exactly as it was.
+    # Two independent kill-switches. Neither touches the DB, so flipping either
+    # back to True restores everything exactly as it was.
+    accepting: bool = True  # accept NEW solves? False -> challenge page + verify
+    # route 404, and the homepage "solve" links/dropdown hide it (no quota burn,
+    # no token replay). Existing SolveCount/SolveEvent rows are untouched.
+    listed: bool = True  # show on the leaderboard? False -> its column is hidden
+    # AND its counts drop out of the grand/per-user totals (kept consistent).
 
     @property
     def site_key(self) -> str | None:
@@ -66,9 +69,10 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             widget_class="g-recaptcha",
             site_key_env="RECAPTCHA_V2_SITE_KEY",
             secret_key_env="RECAPTCHA_V2_SECRET_KEY",
-            # TEMPORARILY DISABLED: hitting the 10k/mo siteverify limit + tokens
-            # were replayable on fail-open. DB data is kept; flip back to re-enable.
-            enabled=False,
+            # TEMPORARILY not accepting new solves: hitting the 10k/mo siteverify
+            # limit + tokens were replayable on fail-open. Leaderboard stays up
+            # (listed=True). To also pull it off the leaderboard, set listed=False.
+            accepting=False,
         ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
@@ -84,16 +88,21 @@ PROVIDERS: dict[str, CaptchaProvider] = {
 }
 
 
-def enabled_providers() -> list[CaptchaProvider]:
-    """Providers to expose in the UI (homepage links, leaderboard columns)."""
-    return [p for p in PROVIDERS.values() if p.enabled]
+def accepting_providers() -> list[CaptchaProvider]:
+    """Providers that still accept solves -> homepage 'solve' links/dropdown."""
+    return [p for p in PROVIDERS.values() if p.accepting]
+
+
+def listed_providers() -> list[CaptchaProvider]:
+    """Providers shown on the leaderboard (columns + counted in totals)."""
+    return [p for p in PROVIDERS.values() if p.listed]
 
 
 def get_provider(slug: str) -> CaptchaProvider:
-    """Look up a provider or raise a 404 for unknown/disabled slugs."""
+    """Look up a provider for solving; 404 unknown or no-longer-accepting slugs."""
     from fastapi import HTTPException
 
     provider = PROVIDERS.get(slug)
-    if provider is None or not provider.enabled:
+    if provider is None or not provider.accepting:
         raise HTTPException(404, f"unknown captcha provider: {slug!r}")
     return provider
