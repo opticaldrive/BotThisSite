@@ -1,6 +1,7 @@
 # One generic verify route for EVERY captcha provider.
 # Provider-specific details live in providers.py, not here.
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from services.utils.get_ip import get_ip
 
 from sqlmodel import select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
@@ -67,10 +68,11 @@ def record_solve(session: SessionDep, name: str, slug: str) -> None:
 
 
 @router.post("/verify/{slug}")
-async def verify_captcha(slug: str, name: str, data: dict, session: SessionDep):
+async def verify_captcha(slug: str, name: str, data: dict, session: SessionDep, request: Request):
     provider = get_provider(slug)
     name = clean_data(name)
     token = data.get("token")
+    print(get_ip(request))
     print(token)
 
     try:
