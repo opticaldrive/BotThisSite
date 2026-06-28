@@ -1,7 +1,7 @@
 from sqlmodel import select
 from models import User, SolveCount
 from database import SessionDep
-from providers import enabled_providers
+from providers import listed_providers
 
 import time
 import threading
@@ -39,9 +39,16 @@ def update_stat_cache(session: SessionDep):
         ).join(SolveCount, SolveCount.user_id == User.id)
     ).all()
 
+    # only count captcha types we still show on the leaderboard, so the grand
+    # total and each user's total always equal the sum of the visible columns.
+    # (unlisted providers' rows stay in the DB, just excluded from the view.)
+    shown = {p.slug for p in listed_providers()}
+
     # build {user_id: {"username":..., "total":..., "by_type": {...}}}
     users_by_id: dict[int, dict] = {}
     for user_id, username, captcha_type, count in rows:
+        if captcha_type not in shown:
+            continue
         entry = users_by_id.setdefault(
             user_id,
             {"username": username, "total": 0, "by_type": {}},
@@ -57,6 +64,6 @@ def update_stat_cache(session: SessionDep):
 
 
 # the captcha types to show as columns on the leaderboard, in registry order.
-# disabled providers are hidden here but their counts remain in the DB.
+# unlisted providers are hidden here but their counts remain in the DB.
 def captcha_columns():
-    return enabled_providers()
+    return listed_providers()
