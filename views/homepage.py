@@ -15,8 +15,7 @@ templates = Jinja2Templates(
 
 
 @router.get("/")
-def get_homepage(request: Request, session: SessionDep):  # sync = runs in threadpool,
-    # so its blocking DB work never stalls the event loop (matters under HN-spike load)
+def get_homepage(request: Request, session: SessionDep):
     stats = get_stats(session=session)
     return templates.TemplateResponse(
         request=request,
@@ -25,6 +24,15 @@ def get_homepage(request: Request, session: SessionDep):  # sync = runs in threa
             "total_solved": stats["total_solved"],
             "providers": accepting_providers(),
         },
+    )
+
+
+@router.get("/credits")
+def get_credits(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="credits.html",
+        context={},
     )
 
 
