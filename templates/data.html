@@ -1,21 +1,60 @@
-
 <!DOCTYPE html>
-
 <html>
 <head>
     <title>BotThisSite Fancy Data Graphs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
-        table,th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-
-        }
+        body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; }
+        #chart-wrap { position: relative; height: 60vh; }
     </style>
 </head>
 <body>
+    <h1>Solves per day</h1>
+    <p><a href="/leaderboard">leaderboard</a> &middot; <a href="/">home</a></p>
 
+    <div id="chart-wrap">
+        <canvas id="solvesChart"></canvas>
+    </div>
 
+    <script>
+        // distinct-ish colors generated per series so adding a captcha needs
+        // zero changes here.
+        function color(i, alpha) {
+            const hue = (i * 137.508) % 360; // golden-angle = well-spread hues
+            return `hsl(${hue} 70% 55% / ${alpha})`;
+        }
+
+        async function draw() {
+            const res = await fetch("/api/graphs/solves_per_day_by_captcha");
+            const { days, series } = await res.json();
+
+            const datasets = series.map((s, i) => ({
+                label: s.name,
+                data: s.counts,
+                backgroundColor: color(i, 0.8),
+                borderColor: color(i, 1),
+                borderWidth: 1,
+            }));
+
+            new Chart(document.getElementById("solvesChart"), {
+                type: "bar",
+                data: { labels: days, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: "Captcha solves per day" },
+                        tooltip: { mode: "index", intersect: false },
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+                    },
+                },
+            });
+        }
+
+        draw();
+    </script>
 </body>
 </html>
-
-

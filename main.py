@@ -23,12 +23,14 @@ from database import SessionDep, create_db_and_tables
 # routes
 from api import leaderboard as api_leaderboard
 from api import captchas as api_captchas
+from api import graphs as api_graphs
 
 # pages
 # homepage:
 from views import homepage as view_homepage
 from views import leaderboard as view_leaderboard
 from views import challenges as view_challenges
+from views import graphs as view_graphs
 
 # i uh am relying on vscode's "problems" tab without actually verifying so uh gl to me
 
@@ -55,9 +57,13 @@ app.include_router(api_leaderboard.router)
 
 app.include_router(api_captchas.router)  # :3
 
+app.include_router(api_graphs.router)
+
 # page/view roters
 app.include_router(view_homepage.router)
 
 app.include_router(view_leaderboard.router)
 
 app.include_router(view_challenges.router)
+
+app.include_router(view_graphs.router)
