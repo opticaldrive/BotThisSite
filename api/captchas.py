@@ -22,7 +22,7 @@ ssl_ctx = ssl.create_default_context(
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
-router = APIRouter(prefix="/captchas", tags=["stats"])
+router = APIRouter(prefix="/captchas", tags=["challenges"])  # why on earth was it stats
 
 
 async def siteverify(provider: CaptchaProvider, token: str | None) -> bool:
