@@ -56,11 +56,47 @@ def get_solves_series(session: SessionDep, bucket: str = "day"):
     return _caches[bucket]["data"]
 
 
-def get_solves_user(session: SessionDep):
-    """
-    get solves per user(then per type) and cache them
-    """
-    None
+def get_user_solves_series(session: SessionDep, bucket: str = "day"):
+    """Total solves per user over time, shaped for Chart.js."""
+    if bucket not in BUCKETS:
+        bucket = "day"
+
+    fmt, _ = BUCKETS[bucket]
+    label = func.strftime(fmt, SolveEvent.solved_at, "unixepoch")
+    rows = session.exec(
+        select(
+            label.label("bucket"),
+            User.id,
+            User.username,
+            func.count().label("count"),
+        )
+        .join(User, SolveEvent.user_id == User.id)
+        .group_by(label, User.id, User.username)
+    ).all()
+
+    counts: dict[str, dict[int, int]] = {}
+    user_names: dict[int, str] = {}
+    totals: dict[int, int] = {}
+    for bucket_label, user_id, username, count in rows:
+        counts.setdefault(bucket_label, {})[user_id] = count
+        user_names[user_id] = username
+        totals[user_id] = totals.get(user_id, 0) + count
+
+    labels = _continuous_labels(counts.keys(), bucket)
+
+    # show the users with the highest total solves first
+    users = sorted(totals.keys(), key=lambda uid: totals[uid], reverse=True)
+
+    series = [
+        {
+            "slug": f"user-{user_id}",
+            "name": user_names[user_id],
+            "counts": [counts.get(label, {}).get(user_id, 0) for label in labels],
+        }
+        for user_id in users
+    ]
+    return {"bucket": bucket, "labels": labels, "series": series}
+
 
 def _build_series(session: SessionDep, bucket: str):
     fmt, _ = BUCKETS[bucket]

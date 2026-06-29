@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BotThisSite Fancy Data Graphs</title>
+    <title>BotThisSite User Solve Graphs</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
         body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; }
@@ -10,8 +10,8 @@
     </style>
 </head>
 <body>
-    <h1>Solves over time</h1>
-    <p><a href="/data/users">user solves</a>, <a href="/leaderboard">leaderboard</a> and <a href="/">home</a></p>
+    <h1>User solves over time</h1>
+    <p><a href="/data">captcha solves</a> and <a href="/leaderboard">leaderboard</a> and <a href="/">home</a></p>
 
     <div class="controls">
         <label>Bucket:
@@ -24,14 +24,12 @@
     </div>
 
     <div id="chart-wrap">
-        <canvas id="solvesChart"></canvas>
+        <canvas id="userSolvesChart"></canvas>
     </div>
 
     <script>
-        // distinct-ish colors generated per series so adding a captcha needs
-        // zero changes here.
         function color(i, alpha) {
-            const hue = (i * 137.508) % 360; // golden-angle = well-spread hues
+            const hue = (i * 137.508) % 360;
             return `hsl(${hue} 70% 55% / ${alpha})`;
         }
 
@@ -39,7 +37,7 @@
 
         async function draw() {
             const bucket = document.getElementById("bucket").value;
-            const res = await fetch(`/api/graphs/solves?bucket=${bucket}`);
+            const res = await fetch(`/api/graphs/user-solves?bucket=${bucket}`);
             const { labels, series } = await res.json();
 
             const datasets = series.map((s, i) => ({
@@ -47,13 +45,13 @@
                 data: s.counts,
                 borderColor: color(i, 1),
                 backgroundColor: color(i, 0.15),
-                tension: 0.3,      // gentle curve
+                tension: 0.3,
                 pointRadius: 2,
                 fill: false,
             }));
 
             if (chart) chart.destroy();
-            chart = new Chart(document.getElementById("solvesChart"), {
+            chart = new Chart(document.getElementById("userSolvesChart"), {
                 type: "line",
                 data: { labels, datasets },
                 options: {
@@ -61,7 +59,7 @@
                     maintainAspectRatio: false,
                     interaction: { mode: "index", intersect: false },
                     plugins: {
-                        title: { display: true, text: `Captcha solves per ${bucket}` },
+                        title: { display: true, text: `User solves per ${bucket}` },
                     },
                     scales: {
                         y: { beginAtZero: true, ticks: { precision: 0 } },
