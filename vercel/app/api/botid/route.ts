@@ -16,20 +16,21 @@ export async function POST(request: NextRequest) {
   const name = request.nextUrl.searchParams.get("name") ?? "anonymous";
 
   const verification = await checkBotId();
+  const success = !verification.isBot;
 
-  if (verification.isBot) {
-    // Detected as a bot -> no solve recorded.
-    return NextResponse.json({ success: false, isBot: true });
+  // "success" is purely the BotID verdict. Recording the solve on Nest is an
+  // optional second step: when the FastAPI env vars aren't set, we skip it, so
+  // you can deploy this shim and test the Success: True/False UI standalone
+  // without any FastAPI changes.
+  if (!success || !FASTAPI_BASE_URL || !BOTID_SHARED_SECRET) {
+    return NextResponse.json({
+      success,
+      isBot: verification.isBot,
+      recorded: false,
+    });
   }
 
   // Human (slipped past the invisible detector) -> record the solve on Nest.
-  if (!FASTAPI_BASE_URL || !BOTID_SHARED_SECRET) {
-    return NextResponse.json(
-      { success: false, error: "shim not configured (missing env)" },
-      { status: 500 },
-    );
-  }
-
   try {
     const res = await fetch(`${FASTAPI_BASE_URL}/captchas/record`, {
       method: "POST",
@@ -39,17 +40,18 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) {
-      return NextResponse.json(
-        { success: false, error: `record failed: ${res.status}` },
-        { status: 502 },
-      );
-    }
-    return NextResponse.json({ success: true, isBot: false });
+    return NextResponse.json({
+      success,
+      isBot: verification.isBot,
+      recorded: res.ok,
+      ...(res.ok ? {} : { error: `record failed: ${res.status}` }),
+    });
   } catch (e) {
-    return NextResponse.json(
-      { success: false, error: String(e) },
-      { status: 502 },
-    );
+    return NextResponse.json({
+      success,
+      isBot: verification.isBot,
+      recorded: false,
+      error: String(e),
+    });
   }
 }
