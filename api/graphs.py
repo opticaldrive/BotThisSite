@@ -4,7 +4,7 @@
 from fastapi import APIRouter
 
 from database import SessionDep
-from services.graph_cache import get_solves_series
+from services.graph_cache import get_solves_series, get_user_solves_series
 
 router = APIRouter(prefix="/api/graphs", tags=["stats"])
 
@@ -13,3 +13,9 @@ router = APIRouter(prefix="/api/graphs", tags=["stats"])
 def solves(session: SessionDep, bucket: str = "day"):
     """Solves per time bucket, split by captcha type. bucket = hour | day."""
     return get_solves_series(session, bucket)
+
+
+@router.get("/user-solves")
+def user_solves(session: SessionDep, bucket: str = "day"):
+    """Total solves per user over time. bucket = hour | day."""
+    return get_user_solves_series(session, bucket)

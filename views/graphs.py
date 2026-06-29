@@ -12,3 +12,8 @@ templates = Jinja2Templates(directory="templates/")
 def get_data(request: Request):
     # the chart fetches /api/graphs/* itself, so this view just serves the shell
     return templates.TemplateResponse(request=request, name="data.html")
+
+
+@router.get("/data/users")
+def get_user_data(request: Request):
+    return templates.TemplateResponse(request=request, name="user_data.html")
