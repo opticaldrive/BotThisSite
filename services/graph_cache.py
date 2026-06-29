@@ -13,7 +13,7 @@ import threading
 
 # bucket name -> (SQLite strftime format, step between buckets)
 BUCKETS: dict[str, tuple[str, timedelta]] = {
-    "5min": ("%Y-%m-%d", timedelta(minutes=5)),
+    "5min": ("%Y-%m-%d %H:%M", timedelta(minutes=5)),
     "hour": ("%Y-%m-%d %H:00", timedelta(hours=1)),
     "day": ("%Y-%m-%d", timedelta(days=1))
 }
