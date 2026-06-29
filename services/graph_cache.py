@@ -13,8 +13,9 @@ import threading
 
 # bucket name -> (SQLite strftime format, step between buckets)
 BUCKETS: dict[str, tuple[str, timedelta]] = {
+    "5min": ("%Y-%m-%d", timedelta(minutes=5)),
     "hour": ("%Y-%m-%d %H:00", timedelta(hours=1)),
-    "day": ("%Y-%m-%d", timedelta(days=1)),
+    "day": ("%Y-%m-%d", timedelta(days=1))
 }
 
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
@@ -56,6 +57,9 @@ def get_solves_series(session: SessionDep, bucket: str = "day"):
 
 
 def get_solves_user(session: SessionDep):
+    """
+    get solves per user(then per type) and cache them
+    """
     None
 
 def _build_series(session: SessionDep, bucket: str):
