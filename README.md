@@ -35,9 +35,7 @@ I personally feel like this should implode but its not! so good! \
 
 ## AI Usage:
 
-* AI usage was kept low \
-* AI use was under 30% \
-* Code is primarily human written, I intend to keep it this way.
+* AI was used to help make this, unfortunately.
 * AI was used for assistance when i was stuck/confused how to continue.
 * Amp Code was one of the tools utilized.
 * I wish I had all the skills to efficiently do it how the LLM does it - while it makes mistakes, I do intend to still learn.
