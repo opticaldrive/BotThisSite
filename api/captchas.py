@@ -1,6 +1,6 @@
 # One generic verify route for EVERY captcha provider.
 # Provider-specific details live in providers.py, not here.
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from services.utils.get_ip import get_ip
 
 from sqlmodel import select
@@ -8,6 +8,11 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from models import User, SolveEvent, SolveCount
 from database import SessionDep
 from services.utils.cleandata import clean_data
+from services.ratelimits import (
+    check_failed_verify_allowed,
+    record_failed_verify,
+    record_successful_verify,
+)
 from providers import CaptchaProvider, get_provider
 
 import aiohttp
@@ -46,6 +51,7 @@ def record_solve(session: SessionDep, name: str, slug: str) -> None:
     """Log the solve: append history (SolveEvent) and bump the tally (SolveCount)."""
     user = session.exec(select(User).where(User.username == name)).first()
     if not user:
+        # ratelimist here
         user = User(username=name)
         session.add(user)
         session.flush()  # assigns user.id for new users
@@ -72,13 +78,28 @@ async def verify_captcha(slug: str, name: str, data: dict, session: SessionDep, 
     provider = get_provider(slug)
     name = clean_data(name)
     token = data.get("token")
-    print(get_ip(request))
+    ip = get_ip(request)
+    print(ip)
     print(token)
+
+    # check_failed_verify_allowed(ip)
+
+    if not token or not isinstance(token, str) or not (10 <= len(token) <= 4096):
+        # record_failed_verify(ip)
+        return {
+            "success": False,
+            "error-codes": ["invalid-token"],
+            "username": name,
+        }
 
     try:
         success = await siteverify(provider, token)
         if success:
+            # record_successful_verify(ip)
             record_solve(session, name, slug)
+        else:
+            # record_failed_verify(ip)
+            None
         return {"success": success, "username": name}
     except Exception as e:
         print(f"{provider.name} validation error: {e}")
