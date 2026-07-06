@@ -15,12 +15,16 @@ import threading
 BUCKETS: dict[str, tuple[str, timedelta]] = {
     "5min": ("%Y-%m-%d %H:%M", timedelta(minutes=5)),
     "hour": ("%Y-%m-%d %H:00", timedelta(hours=1)),
-    "day": ("%Y-%m-%d", timedelta(days=1))
+    "day": ("%Y-%m-%d", timedelta(days=1)),
 }
+
+RANGES = {"hour": 3600, "day": 86400, "all": None}
 
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
 _ttl = 30
-_lock = threading.Lock()  # single-flight: only one rebuild at a time # gulp idk waht this is
+_lock = (
+    threading.Lock()
+)  # single-flight: only one rebuild at a time # gulp idk waht this is
 
 
 def _expired(bucket: str, now: float) -> bool:
@@ -28,18 +32,18 @@ def _expired(bucket: str, now: float) -> bool:
     return entry is None or now - entry["ts"] > _ttl
 
 
-def get_solves_series(session: SessionDep, bucket: str = "day"):
+def get_solves_series(session: SessionDep, bucket: str = "day", range: str = "all"):
     """Solves per time bucket, split by captcha type, shaped for Chart.js.
 
-        {
-          "bucket": "day",
-          "labels": ["2026-06-24", "2026-06-25", ...],
-          "series": [
-            {"slug": "cf-turnstile", "name": "Cloudflare Turnstile",
-             "counts": [17, 0, ...]},
-            ...
-          ]
-        }
+    {
+      "bucket": "day",
+      "labels": ["2026-06-24", "2026-06-25", ...],
+      "series": [
+        {"slug": "cf-turnstile", "name": "Cloudflare Turnstile",
+         "counts": [17, 0, ...]},
+        ...
+      ]
+    }
     """
     if bucket not in BUCKETS:
         bucket = "day"
@@ -56,7 +60,9 @@ def get_solves_series(session: SessionDep, bucket: str = "day"):
     return _caches[bucket]["data"]
 
 
-def get_user_solves_series(session: SessionDep, bucket: str = "day"):
+def get_user_solves_series(
+    session: SessionDep, bucket: str = "day", range: str = "all"
+):
     """Total solves per user over time, shaped for Chart.js."""
     if bucket not in BUCKETS:
         bucket = "day"
@@ -145,4 +151,3 @@ def _continuous_labels(raw_labels, bucket: str) -> list[str]:
         out.append(cur.strftime(fmt))
         cur += step
     return out
-
