@@ -10,12 +10,12 @@ router = APIRouter(prefix="/api/graphs", tags=["stats"])
 
 
 @router.get("/solves")
-def solves(session: SessionDep, bucket: str = "day"):
+def solves(session: SessionDep, bucket: str = "day", range: str = "all"):
     """Solves per time bucket, split by captcha type. bucket = hour | day."""
-    return get_solves_series(session, bucket)
+    return get_solves_series(session, bucket, range)
 
 
 @router.get("/user-solves")
-def user_solves(session: SessionDep, bucket: str = "day"):
+def user_solves(session: SessionDep, bucket: str = "day", range: str = "all"):
     """Total solves per user over time. bucket = hour | day."""
-    return get_user_solves_series(session, bucket)
+    return get_user_solves_series(session, bucket, range)
