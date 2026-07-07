@@ -79,8 +79,8 @@
             });
         }
         const params = new URLSearchParams(location.search);
-        const rangeSel = document.getElementByID("range");
-        const bucketSel = document.getElementByID("bucket");
+        const rangeSel = document.getElementById("range");
+        const bucketSel = document.getElementById("bucket");
 
         if ([...bucketSel.options].some(o => o.value === params.get("bucket")))
             bucketSel.value = params.get("bucket");
