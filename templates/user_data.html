@@ -75,7 +75,14 @@
                 },
             });
         }
+        const params = new URLSearchParams(location.search);
+        const rangeSel = document.getElementByID("range");
+        const bucketSel = document.getElementByID("bucket");
 
+        if ([...bucketSel.options].some(o => o.value === params.get("bucket")))
+            bucketSel.value = params.get("bucket");
+        if ([...rangeSel.options].some(o => o.value === params.get("range")))
+            rangeSel.value = params.get("range");
         document.getElementById("bucket").addEventListener("change", draw);
         document.getElementById("range").addEventListener("change", draw);
         draw();
