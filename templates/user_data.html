@@ -16,9 +16,16 @@
     <div class="controls">
         <label>Bucket:
             <select id="bucket">
-                <option value="day" selected>day</option>
-                <option value="hour">hour</option>
+                <option value="day">day</option>
+                <option value="hour" elected>hour</option>
                 <option value="5min">5min</option>
+            </select>
+        </label>
+        <label>Range:
+            <select id="range">
+                <option value="hour">hour</option>
+                <option value="day" selected>day</option>
+                <option value="all">all</option>
             </select>
         </label>
     </div>
@@ -37,7 +44,8 @@
 
         async function draw() {
             const bucket = document.getElementById("bucket").value;
-            const res = await fetch(`/api/graphs/user-solves?bucket=${bucket}`);
+            const range = document.getElementById("range").value;
+            const res = await fetch(`/api/graphs/user-solves?bucket=${bucket}?range=${range}`);
             const { labels, series } = await res.json();
 
             const datasets = series.map((s, i) => ({
