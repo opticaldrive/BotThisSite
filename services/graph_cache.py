@@ -20,6 +20,20 @@ BUCKETS: dict[str, tuple[str, timedelta]] = {
 
 RANGES = {"hour": 3600, "day": 86400, "all": None}
 
+
+def _bucket_label(bucket: str):
+    """SQL expression: floor solved_at to the bucket boundary, then format it.
+
+    strftime alone can't express "every 5 minutes" (its finest field is a whole
+    minute), so we floor the unix timestamp to a multiple of the step size
+    *before* formatting. This makes the SQL grouping land on the same boundaries
+    that _continuous_labels walks, so no solves get dropped.
+    """
+    fmt, step = BUCKETS[bucket]
+    step_seconds = int(step.total_seconds())
+    floored = SolveEvent.solved_at - (SolveEvent.solved_at % step_seconds)
+    return func.strftime(fmt, floored, "unixepoch")
+
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
 _ttl = 30
 _lock = (
@@ -67,8 +81,7 @@ def get_user_solves_series(
     if bucket not in BUCKETS:
         bucket = "day"
 
-    fmt, _ = BUCKETS[bucket]
-    label = func.strftime(fmt, SolveEvent.solved_at, "unixepoch")
+    label = _bucket_label(bucket)
     rows = session.exec(
         select(
             label.label("bucket"),
@@ -105,8 +118,7 @@ def get_user_solves_series(
 
 
 def _build_series(session: SessionDep, bucket: str):
-    fmt, _ = BUCKETS[bucket]
-    label = func.strftime(fmt, SolveEvent.solved_at, "unixepoch")
+    label = _bucket_label(bucket)
     rows = session.exec(
         select(
             label.label("bucket"),
