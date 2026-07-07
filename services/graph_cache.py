@@ -34,6 +34,19 @@ def _bucket_label(bucket: str):
     floored = SolveEvent.solved_at - (SolveEvent.solved_at % step_seconds)
     return func.strftime(fmt, floored, "unixepoch")
 
+
+def _range_filter(query, range: str):
+    """Restrict a SolveEvent query to the last N seconds ("all" -> no filter).
+
+    The cutoff is computed here at build time, so the window advances in _ttl-
+    second jumps as the cache rebuilds (which is why range is part of the key).
+    """
+    seconds = RANGES.get(range)
+    if seconds is not None:
+        cutoff = int(time.time()) - seconds
+        query = query.where(SolveEvent.solved_at >= cutoff)
+    return query
+
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
 _ttl = 30
 _lock = (
@@ -41,9 +54,38 @@ _lock = (
 )  # single-flight: only one rebuild at a time # gulp idk waht this is
 
 
-def _expired(bucket: str, now: float) -> bool:
-    entry = _caches.get(bucket)
+def _expired(key: str, now: float) -> bool:
+    entry = _caches.get(key)
     return entry is None or now - entry["ts"] > _ttl
+
+
+def _cache_key(kind: str, bucket: str, range: str) -> str:
+    # warning - 9 x captchas can scale up later, might want to investigate.
+    # this variable cahce thing is so dubm lollll
+    return f"{kind}:{bucket}:{range}"
+
+
+def _cached(kind: str, bucket: str, range: str, builder, session: SessionDep):
+    """Shared TTL cache + single-flight rebuild used by both graph endpoints.
+
+    `builder(session, bucket, range)` does the actual DB work; we just memoize
+    its result per (kind, bucket, range) for _ttl seconds.
+    """
+    if bucket not in BUCKETS:
+        bucket = "day"
+    if range not in RANGES:
+        range = "all"
+
+    key = _cache_key(kind, bucket, range)
+    if _expired(key, time.time()):
+        # double-checked locking so a herd of requests doesn't all rebuild
+        with _lock:
+            if _expired(key, time.time()):
+                _caches[key] = {
+                    "ts": time.time(),
+                    "data": builder(session, bucket, range),
+                }
+    return _caches[key]["data"]
 
 
 def get_solves_series(session: SessionDep, bucket: str = "day", range: str = "all"):
@@ -59,39 +101,26 @@ def get_solves_series(session: SessionDep, bucket: str = "day", range: str = "al
       ]
     }
     """
-    if bucket not in BUCKETS:
-        bucket = "day"
-
-    now = time.time()
-    if _expired(bucket, now):
-        # double-checked locking so a herd of requests doesn't all rebuild
-        with _lock:
-            if _expired(bucket, time.time()):
-                _caches[bucket] = {
-                    "ts": time.time(),
-                    "data": _build_series(session, bucket),
-                }
-    return _caches[bucket]["data"]
+    return _cached("solves", bucket, range, _build_series, session)
 
 
 def get_user_solves_series(
     session: SessionDep, bucket: str = "day", range: str = "all"
 ):
     """Total solves per user over time, shaped for Chart.js."""
-    if bucket not in BUCKETS:
-        bucket = "day"
+    return _cached("user", bucket, range, _build_user_series, session)
 
+
+def _build_user_series(session: SessionDep, bucket: str, range: str):
     label = _bucket_label(bucket)
-    rows = session.exec(
-        select(
-            label.label("bucket"),
-            User.id,
-            User.username,
-            func.count().label("count"),
-        )
-        .join(User, SolveEvent.user_id == User.id)
-        .group_by(label, User.id, User.username)
-    ).all()
+    q = select(
+        label.label("bucket"),
+        User.id,
+        User.username,
+        func.count().label("count"),
+    ).join(User, SolveEvent.user_id == User.id)
+    q = _range_filter(q, range).group_by(label, User.id, User.username)
+    rows = session.exec(q).all()
 
     counts: dict[str, dict[int, int]] = {}
     user_names: dict[int, str] = {}
@@ -117,15 +146,15 @@ def get_user_solves_series(
     return {"bucket": bucket, "labels": labels, "series": series}
 
 
-def _build_series(session: SessionDep, bucket: str):
+def _build_series(session: SessionDep, bucket: str, range: str):
     label = _bucket_label(bucket)
-    rows = session.exec(
-        select(
-            label.label("bucket"),
-            SolveEvent.captcha_type,
-            func.count().label("count"),
-        ).group_by(label, SolveEvent.captcha_type)
-    ).all()
+    q = select(
+        label.label("bucket"),
+        SolveEvent.captcha_type,
+        func.count().label("count"),
+    )
+    q = _range_filter(q, range).group_by(label, SolveEvent.captcha_type)
+    rows = session.exec(q).all()
 
     # {label: {slug: count}}
     counts: dict[str, dict[str, int]] = {}
@@ -148,7 +177,7 @@ def _build_series(session: SessionDep, bucket: str):
 
 def _continuous_labels(raw_labels, bucket: str) -> list[str]:
     """Fill in every bucket between the first and last solve.
-
+    # idk if i want this - review - slop
     Keeps a continuous x-axis instead of skipping empty buckets (e.g. a day or
     hour with no solves still shows as a zero).
     """
