@@ -19,6 +19,8 @@ BUCKETS: dict[str, tuple[str, timedelta]] = {
 }
 
 RANGES = {
+    # if i keep adding more the cache is just gonna keep getting bigger lol
+    # maybe just have everything in segments idkk i'll figure it out when i run out of RAM
     "hour": 3600,
     "day": 86400,
     "3day": 3 * 86400,
