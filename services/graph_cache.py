@@ -18,7 +18,14 @@ BUCKETS: dict[str, tuple[str, timedelta]] = {
     "day": ("%Y-%m-%d", timedelta(days=1)),
 }
 
-RANGES = {"hour": 3600, "day": 86400, "all": None}
+RANGES = {
+    "hour": 3600,
+    "day": 86400,
+    "3day": 3 * 86400,
+    "7day": 7 * 86400,
+    "30day": 30 * 86400,
+    "all": None,
+}
 
 
 def _bucket_label(bucket: str):
@@ -46,6 +53,7 @@ def _range_filter(query, range: str):
         cutoff = int(time.time()) - seconds
         query = query.where(SolveEvent.solved_at >= cutoff)
     return query
+
 
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
 _ttl = 30
