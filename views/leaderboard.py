@@ -6,7 +6,7 @@ from models import User
 from database import SessionDep
 from services.leaderboard_cache import get_stats, captcha_columns
 
-router = APIRouter(prefix="/", tags=["pages"])
+router = APIRouter(prefix="", tags=["pages"])
 
 templates = Jinja2Templates(directory="templates/")
 
