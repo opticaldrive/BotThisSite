@@ -26,6 +26,6 @@ def user_solves(session: SessionDep, bucket: str = "day", range: str = "all"):
 
 
 @router.get("/user-scores")
-def user_solves(session: SessionDep, bucket: str = "day", range: str = "all"):
-    """cumsum solves time"""
+def user_scores(session: SessionDep, bucket: str = "day", range: str = "all"):
+    """Cumulative solves (score) per user over time. bucket = hour | day."""
     return get_user_scores_series(session, bucket, range)

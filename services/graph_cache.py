@@ -175,13 +175,13 @@ def _build_user_score_series(session: SessionDep, bucket: str, range: str):
     )
 
     series = []
-    # loop through series
-    for series in based["series"]:
-        # potato
+    for s in based["series"]:
         window_total = sum(s["counts"])
-        running = tally.get(s["user_id"], 0) - window_total  # baseline = lost history
+        # anchor so the last point == the user's true all-time total (SolveCount,
+        # which includes the ~200k pre-SolveEvent solves). the missing history
+        # becomes the flat starting plateau instead of being approximated.
+        running = tally.get(s["user_id"], 0) - window_total
         cumulative = []
-        # aaa
         for c in s["counts"]:
             running += c
             cumulative.append(running)
