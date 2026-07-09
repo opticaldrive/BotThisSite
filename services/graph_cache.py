@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 
 from sqlmodel import select, func
-from models import SolveEvent, User
+from models import SolveEvent, User, SolveCount
 from database import SessionDep
 from providers import listed_providers
 
@@ -154,7 +154,7 @@ def _build_user_series(session: SessionDep, bucket: str, range: str):
 
     series = [
         {
-            "slug": f"user-{user_id}",
+            "user_id": user_id,
             "name": user_names[user_id],
             "counts": [counts.get(label, {}).get(user_id, 0) for label in labels],
         }
@@ -165,19 +165,28 @@ def _build_user_series(session: SessionDep, bucket: str, range: str):
 
 def _build_user_score_series(session: SessionDep, bucket: str, range: str):
     based = _build_user_series(session, bucket, range)
+
+    tally = dict(
+        session.exec(
+            select(SolveCount.user_id, func.sum(SolveCount.count)).group_by(
+                SolveCount.user_id
+            )
+        ).all()
+    )
+
     series = []
     # loop through series
     for series in based["series"]:
         # potato
-
-        running = 0
+        window_total = sum(s["counts"])
+        running = tally.get(s["user_id"], 0) - window_total  # baseline = lost history
         cumulative = []
-        # for the count in series cumsum stuff
+        # aaa
         for c in s["counts"]:
             running += c
             cumulative.append(running)
-        series.append({**s, "counts": cumulative})  ##
-    return series
+        series.append({**s, "counts": cumulative})
+    return {"bucket": based["bucket"], "labels": based["labels"], "series": series}
 
 
 def _build_series(session: SessionDep, bucket: str, range: str):
