@@ -121,6 +121,13 @@ def get_user_solves_series(
     return _cached("user", bucket, range, _build_user_series, session)
 
 
+def get_user_scores_series(
+    session: SessionDep, bucket: str = "day", range: str = "all"
+):
+    """"""
+    return _cached("user-scores", bucket, range, _build_user_score_series, session)
+
+
 def _build_user_series(session: SessionDep, bucket: str, range: str):
     label = _bucket_label(bucket)
     q = select(
@@ -154,6 +161,23 @@ def _build_user_series(session: SessionDep, bucket: str, range: str):
         for user_id in users
     ]
     return {"bucket": bucket, "labels": labels, "series": series}
+
+
+def _build_user_score_series(session: SessionDep, bucket: str, range: str):
+    based = _build_user_series(session, bucket, range)
+    series = []
+    # loop through series
+    for series in based["series"]:
+        # potato
+
+        running = 0
+        cumulative = []
+        # for the count in series cumsum stuff
+        for c in s["counts"]:
+            running += c
+            cumulative.append(running)
+        series.append({**s, "counts": cumulative})  ##
+    return series
 
 
 def _build_series(session: SessionDep, bucket: str, range: str):

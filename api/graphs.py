@@ -4,7 +4,11 @@
 from fastapi import APIRouter
 
 from database import SessionDep
-from services.graph_cache import get_solves_series, get_user_solves_series
+from services.graph_cache import (
+    get_solves_series,
+    get_user_solves_series,
+    get_user_scores_series,
+)
 
 router = APIRouter(prefix="/api/graphs", tags=["stats"])
 
@@ -19,3 +23,9 @@ def solves(session: SessionDep, bucket: str = "day", range: str = "all"):
 def user_solves(session: SessionDep, bucket: str = "day", range: str = "all"):
     """Total solves per user over time. bucket = hour | day."""
     return get_user_solves_series(session, bucket, range)
+
+
+@router.get("/user-scores")
+def user_solves(session: SessionDep, bucket: str = "day", range: str = "all"):
+    """cumsum solves time"""
+    return get_user_scores_series(session, bucket, range)
