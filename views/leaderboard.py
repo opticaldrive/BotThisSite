@@ -6,12 +6,13 @@ from models import User
 from database import SessionDep
 from services.leaderboard_cache import get_stats, captcha_columns
 
-router = APIRouter(prefix="/leaderboard", tags=["pages"])
+router = APIRouter(prefix="/", tags=["pages"])
 
 templates = Jinja2Templates(directory="templates/")
 
 
-@router.get("")
+@router.get("/leaderboard")
+@router.get("/l")
 def get_leaderboard(request: Request, session: SessionDep, all: bool | None = False):
     stats = get_stats(session=session)
     users = stats["data"]
