@@ -38,6 +38,7 @@ class CaptchaProvider:
     # no token replay). Existing SolveCount/SolveEvent rows are untouched.
     listed: bool = True  # show on the leaderboard? False -> its column is hidden
     # AND its counts drop out of the grand/per-user totals (kept consistent).
+    # probs remove listed lol one day
 
     @property
     def site_key(self) -> str | None:
