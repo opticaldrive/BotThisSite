@@ -41,6 +41,3 @@ I personally feel like this should implode but its not! so good! \
 * I wish I had all the skills to efficiently do it how the LLM does it - while it makes mistakes, I do intend to still learn.
 * as of the current commit, the migration to more models and better provider setups was handled by amp code. (it convinced me to not have everything as a sql column)
 
-## prod was on:
-commit e6b2d9aa9b64a1ae035dff71aa5e353336a6eeba (HEAD -> main, origin/main, origin/HEAD)
-
