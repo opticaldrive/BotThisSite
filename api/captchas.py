@@ -8,11 +8,8 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from models import User, SolveEvent, SolveCount
 from database import SessionDep
 from services.utils.cleandata import clean_data
-from services.ratelimits import (
-    check_failed_verify_allowed,
-    record_failed_verify,
-    record_successful_verify,
-)
+
+#
 from providers import CaptchaProvider, get_provider
 
 import aiohttp
@@ -74,7 +71,9 @@ def record_solve(session: SessionDep, name: str, slug: str) -> None:
 
 
 @router.post("/verify/{slug}")
-async def verify_captcha(slug: str, name: str, data: dict, session: SessionDep, request: Request):
+async def verify_captcha(
+    slug: str, name: str, data: dict, session: SessionDep, request: Request
+):
     provider = get_provider(slug)
     name = clean_data(name)
     token = data.get("token")
