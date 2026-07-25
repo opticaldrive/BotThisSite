@@ -24,6 +24,7 @@ from database import SessionDep, create_db_and_tables
 from api import leaderboard as api_leaderboard
 from api import captchas as api_captchas
 from api import graphs as api_graphs
+from api import tinac as api_tinac
 
 # pages
 # homepage:
@@ -57,6 +58,8 @@ app.include_router(api_leaderboard.router)
 app.include_router(api_captchas.router)  # :3
 
 app.include_router(api_graphs.router)
+
+app.include_router(api_tinac.router)
 
 # page/view roters
 app.include_router(view_homepage.router)

@@ -75,6 +75,16 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             # (listed=True). To also pull it off the leaderboard, set listed=False.
             accepting=False,
         ),
+        CaptchaProvider(
+            slug="tinac",
+            name="TINAC (Image)",
+            verify_url="N/A",
+            script_url="",
+            widget_class="tinac",
+            site_key_env="",
+            secret_key_env="",
+            template="challenges/tinac.html",
+        ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
         #     slug="hcaptcha",
