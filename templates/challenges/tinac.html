@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotThisSite: {{provider.name}} Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        canvas {
+            border: 1px solid #555;
+            display: block;
+            margin: 10px 0;
+        }
+        input[type="range"] {
+            width: 400px;
+            margin: 8px 0;
+        }
+        input[type="text"] {
+            width: 400px;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005f99;
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #results {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Solving {{provider.name}} for <b>{{name}}</b></h2>
+
+<p>Drag the slider until you see legible text, then type what you see.</p>
+
+<canvas id="captcha_canvas" style="display:none;"></canvas>
+<div id="status">Loading captcha...</div>
+
+<label>Slider: <input type="range" id="captcha_slider" min="0" max="1" value="0" disabled></label>
+<span id="selected_index">0</span>
+
+<br>
+<input type="text" id="answer_input" placeholder="Enter captcha text here" disabled>
+<button id="submit_btn" onclick="submitCaptcha()" disabled>Submit</button>
+
+<div id="results"></div>
+
+<script>
+    let captchaId = null;
+    let rawBits = null;
+    let meta = null;
+    const canvas = document.getElementById("captcha_canvas");
+
+    async function loadCaptcha() {
+        const status = document.getElementById("status");
+        try {
+            const resp = await fetch("/captchas/tinac/challenge");
+            const data = await resp.json();
+            if (data.error) {
+                status.textContent = "Error: " + data.error;
+                return;
+            }
+            captchaId = data.id;
+            meta = data.challenge;
+            document.getElementById("captcha_slider").max = data.steps - 1;
+
+            const binaryString = atob(meta.data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const stream = new Blob([bytes]).stream().pipeThrough(
+                new DecompressionStream("deflate")
+            );
+            const resp2 = new Response(stream);
+            const buffer = await resp2.arrayBuffer();
+            rawBits = new Uint8Array(buffer);
+
+            canvas.style.display = "block";
+            document.getElementById("captcha_slider").disabled = false;
+            document.getElementById("answer_input").disabled = false;
+            document.getElementById("submit_btn").disabled = false;
+            status.textContent = "Captcha loaded. Drag slider to find legible text.";
+
+            displayFrame(0);
+        } catch (err) {
+            status.textContent = "Error loading captcha: " + err;
+        }
+    }
+
+    function hexToRgb(hex) {
+        hex = hex.replace(/^#/, "");
+        const bigint = parseInt(hex, 16);
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255
+        };
+    }
+
+    function displayFrame(index) {
+        if (!rawBits || !canvas || !meta) return;
+        if (index < 0 || index >= meta.count) return;
+
+        canvas.width = meta.width;
+        canvas.height = meta.height;
+        const ctx = canvas.getContext("2d");
+        const imgData = ctx.createImageData(meta.width, meta.height);
+        const pixels = imgData.data;
+
+        const fg = { r: 212, g: 212, b: 212 };
+        const totalPixels = meta.width * meta.height;
+        const bytesPerFrame = Math.ceil(totalPixels / 8);
+        const startByte = index * bytesPerFrame;
+
+        for (let i = 0; i < totalPixels; i++) {
+            const byteIndex = startByte + (i >> 3);
+            const bitPos = 7 - (i % 8);
+            const byteVal = (byteIndex < rawBits.length) ? rawBits[byteIndex] : 0;
+            const isInk = (byteVal >> bitPos) & 1;
+            const p = i * 4;
+
+            if (isInk === 1) {
+                pixels[p]     = fg.r;
+                pixels[p + 1] = fg.g;
+                pixels[p + 2] = fg.b;
+                pixels[p + 3] = 255;
+            } else {
+                pixels[p]     = 30;
+                pixels[p + 1] = 30;
+                pixels[p + 2] = 30;
+                pixels[p + 3] = 255;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    document.getElementById("captcha_slider").addEventListener("input", function() {
+        document.getElementById("selected_index").textContent = this.value;
+        displayFrame(parseInt(this.value));
+    });
+
+    async function submitCaptcha() {
+        const answer = document.getElementById("answer_input").value;
+        const index = parseInt(document.getElementById("captcha_slider").value);
+        const results = document.getElementById("results");
+        results.textContent = "Verifying...";
+
+        try {
+            const resp = await fetch("/captchas/tinac/verify?name={{name | urlencode}}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: captchaId, answer: answer, index: index })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                results.textContent = "Correct! Solved for {{name}}.";
+            } else {
+                results.textContent = "Incorrect. Try again!";
+            }
+        } catch (err) {
+            results.textContent = "Error submitting: " + err;
+        }
+    }
+
+    loadCaptcha();
+</script>
+
+<img src="http://ipv4.games/claim?name=BotThisSite" alt="evil haxxor tracker raygun :3" style="opacity: 0; width: 0; height: 0; position: fixed;">
+
+</body>
+</html>
