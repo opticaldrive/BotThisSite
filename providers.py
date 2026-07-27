@@ -39,6 +39,14 @@ class CaptchaProvider:
     listed: bool = True  # show on the leaderboard? False -> its column is hidden
     # AND its counts drop out of the grand/per-user totals (kept consistent).
     # probs remove listed lol one day
+    prop_challenge_url: str | None = (
+        None  # this is a default that stuff like vercel overrides per thingy,  # realisticly idk what would be different from just making this challenge url but whatever
+    )
+
+    # we will get it as smt like /captchas/{the slug}?name=demo by default but if url is set, we will redirect solvers to the custom url
+    @property
+    def challenge_url(self) -> str:
+        return self.prop_challenge_url or f"/captchas/{self.slug}"
 
     @property
     def site_key(self) -> str | None:
@@ -85,6 +93,7 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             secret_key_env="",
             accepting=False,  # this has another benefit for helping with special cases like this
             listed=True,
+            prop_challenge_url="https://botthis.vercel.app/challenge",
         ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
@@ -103,6 +112,16 @@ PROVIDERS: dict[str, CaptchaProvider] = {
 def accepting_providers() -> list[CaptchaProvider]:
     """Providers that still accept solves -> homepage 'solve' links/dropdown."""
     return [p for p in PROVIDERS.values() if p.accepting]
+
+
+def solvable_providers() -> list[CaptchaProvider]:
+    # this is dumb bc its assuming that with a custom provider.url its solvable.... caveat! we will need to fix this later by makind more values
+    # this object really is getting cluttered! i love configuration though :3c
+    return [
+        provider
+        for provider in PROVIDERS.values()
+        if provider.accepting or provider.prop_challenge_url is not None
+    ]
 
 
 def listed_providers() -> list[CaptchaProvider]:

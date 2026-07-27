@@ -8,7 +8,7 @@ type VerifyResult = { success: boolean; isBot?: boolean; error?: string };
 
 function Challenge() {
   const params = useSearchParams();
-  const name = params.get("name") ?? "anonymous";
+  const name = params.get("name");
   const [state, setState] = useState<"idle" | "checking" | "done">("idle");
   const [result, setResult] = useState<VerifyResult | null>(null);
   
@@ -16,6 +16,15 @@ function Challenge() {
   const hasTriggered = useRef(false);
 
   async function solve() {
+    if (!name?.trim()) {
+      setResult({
+        success: false,
+        error: "name is required",
+      });
+      setState("done");
+      return;
+    }
+
     setState("checking");
     try {
       const res = await fetch(

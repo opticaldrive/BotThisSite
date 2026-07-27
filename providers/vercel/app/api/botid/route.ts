@@ -14,9 +14,19 @@ const BOTID_SHARED_SECRET = process.env.BOTID_SHARED_SECRET;
 
 export async function POST(request: NextRequest) {
   const name = request.nextUrl.searchParams.get("name");
-
+  if (!name?.trim()) {
+    return NextResponse.json(
+      {
+        success: false,
+        recorded: false,
+        error: "name is required you silly",
+      },
+      { status: 400 },
+    );
+  }
   const verification = await checkBotId();
-  const success = !verification.isBot;
+  // const success = !verification.isBot;
+  const success = verification.isHuman;
 
   // "success" is purely the BotID verdict. Recording the solve on Nest is an
   // optional second step: when the FastAPI env vars aren't set, we skip it, so

@@ -21,7 +21,7 @@ Links: <br>
 <b>recaptcha is disabled until further notice 3:</b> <br>
 (Append ?name=yourname to any captcha link below)<br>
 {% for provider in providers %}
-<a href="/captchas/{{provider.slug}}">Solve {{provider.name}}</a> <br>
+<a href="{{provider.challenge_url}}">Solve {{provider.name}}</a> <br>
 {% endfor %}
 </p>
 
@@ -35,7 +35,7 @@ Or, put your name here and pick a captcha and we'll just make you the link: <br>
         Captcha:
         <select id="captcha">
             {% for provider in providers %}
-            <option value="{{provider.slug}}">{{provider.name}}</option>
+            <option value="{{provider.challenge_url}}">{{provider.name}}</option>
             {% endfor %}
         </select>
     </label>
@@ -45,8 +45,12 @@ Or, put your name here and pick a captcha and we'll just make you the link: <br>
   document.getElementById('gotonamedcaptcha').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('name').value;
-    const slug = document.getElementById('captcha').value;
-    window.location.href = `/captchas/${slug}?name=${encodeURIComponent(name)}`;
+    // const slug = document.getElementById('captcha').value;
+    // window.location.href = `/captchas/${slug}?name=${encodeURIComponent(name)}`;
+    const destination = document.getElementById('captcha').value;
+    const url = new URL(destination, window.location.origin);
+    url.searchParams.set('name', name); // this better be url safe
+    window.location.href = url.toString()
   });
 </script>
 <footer><small>building this website as we fly it, since 2026<br><small><i>:3 and here's to another day of it.  <small><small>(the abuse of small tags continues)</small></small></i></small><small></footer>

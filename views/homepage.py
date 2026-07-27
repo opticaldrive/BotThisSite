@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 
 from database import SessionDep
 from services.leaderboard_cache import get_stats
-from providers import accepting_providers
+from providers import solvable_providers
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
 
@@ -22,7 +22,7 @@ def get_homepage(request: Request, session: SessionDep):
         name="index.html",
         context={
             "total_solved": stats["total_solved"],
-            "providers": accepting_providers(),
+            "providers": solvable_providers(),
         },
     )
 
