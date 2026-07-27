@@ -58,7 +58,7 @@ app.include_router(api_captchas.router)  # :3
 
 app.include_router(api_graphs.router)
 
-# page/view roters
+# page/view roters - these are all ui/html
 app.include_router(view_homepage.router)
 
 app.include_router(view_leaderboard.router)

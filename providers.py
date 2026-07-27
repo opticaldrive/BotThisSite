@@ -75,6 +75,17 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             # (listed=True). To also pull it off the leaderboard, set listed=False.
             accepting=False,
         ),
+        CaptchaProvider(
+            slug="vercel-botid-basic",
+            name="Vercel BotID Basic",
+            verify_url="",
+            script_url="",
+            widget_class="",
+            site_key_env="",
+            secret_key_env="",
+            accepting=False,  # this has another benefit for helping with special cases like this
+            listed=True,
+        ),
         # --- add more captchas here, e.g. hCaptcha: ---
         # CaptchaProvider(
         #     slug="hcaptcha",

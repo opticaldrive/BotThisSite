@@ -13,7 +13,7 @@ const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL; // e.g. https://bts.zzz.h
 const BOTID_SHARED_SECRET = process.env.BOTID_SHARED_SECRET;
 
 export async function POST(request: NextRequest) {
-  const name = request.nextUrl.searchParams.get("name") ?? "anonymous";
+  const name = request.nextUrl.searchParams.get("name");
 
   const verification = await checkBotId();
   const success = !verification.isBot;
@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
 
   // Human (slipped past the invisible detector) -> record the solve on Nest.
   try {
-    const res = await fetch(`${FASTAPI_BASE_URL}/captchas/record`, {
+    const res = await fetch(`${FASTAPI_BASE_URL}/captchas/record/vercel/botid-basic?name=${encodeURIComponent(name)}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-BotID-Secret": BOTID_SHARED_SECRET,
       },
-      body: JSON.stringify({ name }),
+      // body: JSON.stringify({ name }),
     });
     return NextResponse.json({
       success,
