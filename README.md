@@ -25,6 +25,10 @@ I personally feel like this should implode but its not! so good! \
 * Nest - hosting provider 
 
 
+## Setup
+* get cloudflare, recaptcha, etc tokens put in .env according to .env.example
+* uv run fastapi dev main.py for dev
+
 ## Todo
 * Add more captchas 
 * gh shield 
