@@ -1,0 +1,1 @@
+in this directory, we typically put non-python code or extra configuration that is needed for non-recaptcha-drop-in providers like vercel botID or cap.js dockerfiles
