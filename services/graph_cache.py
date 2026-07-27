@@ -58,7 +58,7 @@ def _range_filter(query, range: str):
 
 
 _caches: dict[str, dict] = {}  # bucket -> {"ts": ..., "data": ...}
-_ttl = 30
+_ttl = 60
 _lock = (
     threading.Lock()
 )  # single-flight: only one rebuild at a time # gulp idk waht this is
