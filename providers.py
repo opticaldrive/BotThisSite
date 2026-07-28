@@ -95,16 +95,15 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             listed=True,
             prop_challenge_url="https://botthis.vercel.app/challenge",
         ),
-        # --- add more captchas here, e.g. hCaptcha: ---
-        # CaptchaProvider(
-        #     slug="hcaptcha",
-        #     name="hCaptcha",
-        #     verify_url="https://api.hcaptcha.com/siteverify",
-        #     script_url="https://js.hcaptcha.com/1/api.js",
-        #     widget_class="h-captcha",
-        #     site_key_env="HCAPTCHA_SITE_KEY",
-        #     secret_key_env="HCAPTCHA_SECRET_KEY",
-        # ),
+        CaptchaProvider(
+            slug="hcaptcha",
+            name="hCaptcha",
+            verify_url="https://api.hcaptcha.com/siteverify",
+            script_url="https://js.hcaptcha.com/1/api.js",
+            widget_class="h-captcha",
+            site_key_env="HCAPTCHA_SITE_KEY",
+            secret_key_env="HCAPTCHA_SECRET_KEY",
+        ),
     ]
 }
 
