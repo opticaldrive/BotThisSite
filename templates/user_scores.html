@@ -54,16 +54,24 @@
             const res = await fetch(`/api/graphs/user-scores?bucket=${bucket}&range=${range}`);
             const { labels, series } = await res.json();
             syncUrl()
-            const datasets = series.map((s, i) => ({
+            // const datasets = series.map((s, i) => ({
+            //     label: s.name,
+            //     data: s.counts,
+            //     borderColor: color(i, 1),
+            //     backgroundColor: color(i, 0.15),
+            //     tension: 0.3,
+            //     // pointRadius: 2,
+            //     fill: false,
+            // }));
+
+            const datasets = series.slice(0, 25).map((s, i) => ({
                 label: s.name,
                 data: s.counts,
                 borderColor: color(i, 1),
                 backgroundColor: color(i, 0.15),
                 tension: 0.3,
-                // pointRadius: 2,
                 fill: false,
             }));
-
             if (chart) chart.destroy();
             chart = new Chart(document.getElementById("userScoresChart"), {
                 type: "line",
@@ -74,6 +82,9 @@
                     interaction: { mode: "index", intersect: false },
                     plugins: {
                         title: { display: true, text: `Cumulative user score (${range})` },
+                        legend: {
+                            display: series.length <= 10,
+                        },
                     },
                     scales: {
                         y: { beginAtZero: true, ticks: { precision: 0 } },
