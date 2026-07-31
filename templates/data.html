@@ -48,7 +48,7 @@
                 borderColor: color(i, 1),
                 backgroundColor: color(i, 0.15),
                 tension: 0.3,      // gentle curve
-                pointRadius: 2,
+                // pointRadius: 2,
                 fill: false,
             }));
 
@@ -65,6 +65,14 @@
                     },
                     scales: {
                         y: { beginAtZero: true, ticks: { precision: 0 } },
+                    },
+                    animation: false,
+                    normalized: true,
+                    elements: {
+                        point: {
+                            radius: 0,
+                            hoverRadius: 3,
+                        },
                     },
                 },
             });
