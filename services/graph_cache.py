@@ -7,7 +7,7 @@ from sqlmodel import select, func
 from models import SolveEvent, User, SolveCount
 from database import SessionDep
 from providers import listed_providers
-
+from fastapi import HTTPException
 import time
 import threading
 
@@ -28,6 +28,34 @@ RANGES = {
     "30day": 30 * 86400,
     "all": None,
 }
+
+# restrict the dangerous 5min x all query that never seems to finish
+ALLOWED_RANGES = {
+    # left - buckets, right, ranges
+    "5min": {
+        "hour",
+        "day",
+        "3day",
+    },
+    "hour": {"day", "3day", "7day"},
+    "day": {"3day", "7day", "30day", "all"},
+}
+
+
+def validate_range_combo(bucket: str, range: str):
+    if bucket not in ALLOWED_RANGES:
+        raise HTTPException(
+            status_code=422, detail=f"can't have this bucket, sorry: {bucket}"
+        )
+    if range not in ALLOWED_RANGES:
+        allowed = sorted(ALLOWED_RANGES[bucket])
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": f"can't have this range, sorry: {range}",
+                "alllowed_ranges": allowed,
+            },
+        )
 
 
 def _bucket_label(bucket: str):
@@ -76,6 +104,7 @@ def _cache_key(kind: str, bucket: str, range: str) -> str:
 
 
 def _cached(kind: str, bucket: str, range: str, builder, session: SessionDep):
+    validate_range_combo(bucket, range)
     """Shared TTL cache + single-flight rebuild used by both graph endpoints.
 
     `builder(session, bucket, range)` does the actual DB work; we just memoize
