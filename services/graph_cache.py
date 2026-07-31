@@ -47,13 +47,13 @@ def validate_range_combo(bucket: str, range: str):
         raise HTTPException(
             status_code=422, detail=f"can't have this bucket, sorry: {bucket}"
         )
-    if range not in ALLOWED_RANGES:
+    if range not in ALLOWED_RANGES[bucket]:
         allowed = sorted(ALLOWED_RANGES[bucket])
         raise HTTPException(
             status_code=422,
             detail={
                 "message": f"can't have this range, sorry: {range}",
-                "alllowed_ranges": allowed,
+                "allowed_ranges": allowed,
             },
         )
 
