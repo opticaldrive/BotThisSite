@@ -19,13 +19,8 @@ Links: <br>
 <a href="/leaderboard">Leaderboard</a> <br>
 
 <b>recaptcha is disabled until further notice 3:</b> <br>
-(Append ?name=yourname to any captcha link below)<br>
-{% for provider in providers %}
-<a href="{{provider.challenge_url}}">Solve {{provider.name}}</a> <br>
-{% endfor %}
-</p>
-
-Or, put your name here and pick a captcha and we'll just make you the link: <br>
+<br>
+put your name here and pick a captcha and we'll just make you the link:
 <form id = "gotonamedcaptcha">
     <label>
         Name:
@@ -40,7 +35,16 @@ Or, put your name here and pick a captcha and we'll just make you the link: <br>
         </select>
     </label>
     <button type="submit">Go solve captchas?</button>
+
 </form>
+<br>
+(or, append ?name=yourname to any captcha link below)<br>
+{% for provider in providers %}
+<a href="{{provider.challenge_url}}">Solve {{provider.name}}</a> <br>
+{% endfor %}
+</p>
+
+
 <script>
   document.getElementById('gotonamedcaptcha').addEventListener('submit', (e) => {
     e.preventDefault();
