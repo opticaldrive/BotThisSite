@@ -51,8 +51,8 @@ function Challenge() {
   }, [name]); // Re-runs if the URL name parameter changes
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem" }}>
-      <h1>BotThisSite: Vercel BotID Challenge</h1>
+    <main style={{ fontFamily: "sans-serif", }}>
+      {/* <h1>BotThisSite: Vercel BotID Basic Challenge</h1> */}
       <p>
       Faithfully solving this Vercel BotID Basic :tm: Challenge for the glory of <b>{name}</b>.
       </p>
