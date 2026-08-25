@@ -65,5 +65,9 @@ def update_stat_cache(session: SessionDep):
 
 # the captcha types to show as columns on the leaderboard, in registry order.
 # unlisted providers are hidden here but their counts remain in the DB.
+
+# WHY DOES THIS EXIST THIS IS SO DUMB WHY ARE WE REDIRECTING STUFF
+
+
 def captcha_columns():
     return listed_providers()

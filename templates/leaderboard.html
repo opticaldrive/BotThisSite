@@ -25,8 +25,11 @@ Last updated: {{cache_age}}s ago. <br>
         <th>Rank</th>
         <th>Name</th>
         <th>CAPTCHAs Solved</th>
+
         {% for provider in providers %}
-        <th>{{provider.name}}</th>
+        {% if provider.slug == selected_captcha %}
+        <th><a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a></th>
+        {% endif %}
         {% endfor %}
     </tr>
 </thead>
@@ -39,7 +42,9 @@ Last updated: {{cache_age}}s ago. <br>
         <td>{{user.username}}</td>
         <td>{{user.total}}</td>
         {% for provider in providers %}
+        {%if provider.slug == selected_captcha %}
         <td>{{user.by_type.get(provider.slug, 0)}}</td>
+        {%endif%}
         {% endfor %}
     </tr>
     {% endfor %}
