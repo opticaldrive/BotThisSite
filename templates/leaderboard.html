@@ -35,7 +35,7 @@ Last updated: {{cache_age}}s ago. <br>
 
         {% for provider in providers %}
         {% if selected_captcha is none or provider.slug == selected_captcha %}
-        <th>{{provider.name}}</th>
+                <th><a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a></th>
         {% endif %}
         {% endfor %}
     </tr>
