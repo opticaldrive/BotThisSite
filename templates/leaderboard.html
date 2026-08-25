@@ -18,13 +18,6 @@ Total captchas solved: {{total_solved}} <br>
 Last updated: {{cache_age}}s ago. <br> 
 <a href="/leaderboard?all=true">Click here to see all leaderboard rows(default shows 100)</a>
 <a href="/">Go home</a>
-<p>
-    View:
-    <a href="/leaderboard">Overall</a>
-    {% for provider in providers %}
-    | <a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a>
-    {% endfor %}
-</p>
 <table>
 <thead>
 
@@ -35,7 +28,7 @@ Last updated: {{cache_age}}s ago. <br>
 
         {% for provider in providers %}
         {% if provider.slug == selected_captcha %}
-        <th>{{provider.name}}</th>
+        <th><a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a></th>
         {% endif %}
         {% endfor %}
     </tr>
@@ -60,4 +53,5 @@ Last updated: {{cache_age}}s ago. <br>
 :3
 </body>
 </html>
+
 
