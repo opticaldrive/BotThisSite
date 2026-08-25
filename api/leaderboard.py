@@ -10,14 +10,8 @@ from services.leaderboard_cache import get_stats
 
 
 @router.get("/leaderboard")
-def get_leaderboard(
-    session: SessionDep,
-    # type: str,  # captcha type, rename later
-):
-    return get_stats(
-        session=session,
-        # type=type,
-    )
+def get_leaderboard(session: SessionDep):
+    return get_stats(session=session)
 
 
 @router.get("/total_captchas")
