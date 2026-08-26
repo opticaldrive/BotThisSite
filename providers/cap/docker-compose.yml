@@ -3,7 +3,7 @@ services:
     image: tiago2/cap:latest
     container_name: cap
     ports:
-      - "3000:3000"
+      - "3069:3000"
     environment:
       ADMIN_KEY: ${CAP_ADMIN_KEY:?Add CAP_ADMIN_KEY to the repository .env file}
       REDIS_URL: redis://valkey:6379
