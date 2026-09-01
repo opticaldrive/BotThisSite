@@ -35,21 +35,22 @@ router = APIRouter(prefix="/captchas", tags=["challenges"])  # why on earth was 
 router.include_router(vercel_api.router)
 
 
-async def siteverify(provider: CaptchaProvider, token: str | None) -> bool:
+async def siteverify(
+    provider: CaptchaProvider, token: str | None, aiosession: aiohttp.ClientSession
+) -> bool:
     """POST {secret, response} to the provider's siteverify endpoint.
 
     Cloudflare Turnstile, reCAPTCHA and hCaptcha all speak this same protocol
     and return JSON with a boolean "success", so one function covers them all.
     """
     payload = {"secret": provider.secret_key, "response": token}
-    async with aiohttp.ClientSession() as aiosession:
-        async with aiosession.post(
-            url=provider.verify_url, data=payload, ssl=ssl_ctx
-        ) as response:
-            response.raise_for_status()
-            response_json = await response.json()
-            print(response_json)
-            return response_json.get("success") is True
+    async with aiosession.post(
+        url=provider.verify_url, data=payload, ssl=ssl_ctx
+    ) as response:
+        response.raise_for_status()
+        response_json = await response.json()
+        print(response_json)
+        return response_json.get("success") is True
 
 
 @router.post("/verify/{slug}")
@@ -74,7 +75,7 @@ async def verify_captcha(
         }
 
     try:
-        success = await siteverify(provider, token)
+        success = await siteverify(provider, token, request.app.state.http_session)
         if success:
             # record_successful_verify(ip)
             record_solve(session, name, slug)

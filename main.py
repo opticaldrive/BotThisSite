@@ -1,5 +1,6 @@
 # everything-in-one-file until i fix this mess
 from fastapi import FastAPI
+import aiohttp
 
 # validation via http request -> external
 
@@ -38,8 +39,16 @@ app = FastAPI()
 
 
 @app.on_event("startup")
-def on_startup():
+async def on_startup():
     create_db_and_tables()
+    app.state.http_session = aiohttp.ClientSession(
+        connector=aiohttp.TCPConnector(ssl=ssl_ctx)
+    )
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    await app.state.http_session.close()
 
 
 # app content
