@@ -1,5 +1,0 @@
-aiohttp
-fastapi[standard]
-sqlmodel
-jinja2
-dotenv

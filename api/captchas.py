@@ -16,6 +16,7 @@ from services.utils.get_ip import get_ip
 from providers import CaptchaProvider, get_provider
 
 import aiohttp
+import logging
 
 # aiohttp ssl sob macos issues ahhh
 import certifi
@@ -29,6 +30,8 @@ ssl_ctx = ssl.create_default_context(
 )  # apparently removing this still breaks things uh
 
 # https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/captchas", tags=["challenges"])  # why on earth was it stats
 
@@ -49,7 +52,7 @@ async def siteverify(
     ) as response:
         response.raise_for_status()
         response_json = await response.json()
-        print(response_json)
+        log.debug("%s siteverify: %s", provider.name, response_json)
         return response_json.get("success") is True
 
 
@@ -61,8 +64,8 @@ async def verify_captcha(
     name = clean_data(name)
     token = data.get("token")
     ip = get_ip(request)
-    print(ip)
-    print(token)
+    # the token is a credential, so it stays out of the log.
+    log.info("verify %s for %r from %s", slug, name, ip)
 
     # check_failed_verify_allowed(ip)
 
@@ -84,7 +87,7 @@ async def verify_captcha(
             None
         return {"success": success, "username": name}
     except Exception as e:
-        print(f"{provider.name} validation error: {e}")
+        log.exception("%s validation error: %s", provider.name, e)
         return {
             "success": False,
             "error-codes": ["internal-error"],

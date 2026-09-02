@@ -1,6 +1,8 @@
 # everything-in-one-file until i fix this mess
 from fastapi import FastAPI
+from sqlmodel import Session
 import aiohttp
+import logging
 
 # validation via http request -> external
 
@@ -16,7 +18,8 @@ ssl_ctx = ssl.create_default_context(
 
 # misc config + core
 # from models import User
-from database import SessionDep, create_db_and_tables
+from database import SessionDep, create_db_and_tables, engine
+from services.rollup import backfill
 
 # from config import CF_SECRET_KEY
 
@@ -41,6 +44,11 @@ app = FastAPI()
 @app.on_event("startup")
 async def on_startup():
     create_db_and_tables()
+    # cheap once caught up, and it repairs the rollup after any downtime.
+    with Session(engine) as session:
+        written = backfill(session)
+    if written:
+        logging.getLogger(__name__).info("rollup: wrote %s buckets", written)
     app.state.http_session = aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=ssl_ctx)
     )

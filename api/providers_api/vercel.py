@@ -12,6 +12,7 @@ from services.utils.get_ip import get_ip
 from services.record_solve import record_solve
 import os
 import hmac
+import logging
 
 #
 from providers import CaptchaProvider, get_provider
@@ -23,6 +24,8 @@ import certifi
 import ssl
 
 ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+log = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/record/vercel", tags=["misc"])  # why on earth was it stats
 
 
@@ -54,7 +57,7 @@ async def record_botid_basic(
 
     name = clean_data(name)
     ip = get_ip(request)
-    print(ip)
+    log.info("botid solve for %r from %s", name, ip)
     record_solve(session, name, "vercel-botid-basic")
 
     return {"success": True, "username": name}

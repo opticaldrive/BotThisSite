@@ -18,6 +18,9 @@ def _set_sqlite_pragmas(dbapi_conn, conn_record):
     cur = dbapi_conn.cursor()
     cur.execute("PRAGMA journal_mode=WAL")
     cur.execute("PRAGMA synchronous=NORMAL")
+    # WAL still serialises writers, and sqlite's default is to give up the
+    # instant one is busy. Wait instead of 500-ing a solve that was fine.
+    cur.execute("PRAGMA busy_timeout=5000")
     cur.close()
 
 

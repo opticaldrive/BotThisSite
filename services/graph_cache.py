@@ -1,10 +1,11 @@
-# Time-series cache for the graphs page. Reads the SolveEvent history (the
-# append-only log), so it's cached with a short TTL like leaderboard_cache.py
-# rather than re-scanning on every request.
+# Time-series cache for the graphs page. Reads SolveBucket, the 5-minute
+# rollup of the history (see services/rollup.py), so a rebuild groups a few
+# thousand rows instead of scanning millions of SolveEvent rows. Still cached
+# with a short TTL like leaderboard_cache.py.
 from datetime import datetime, timedelta
 
 from sqlmodel import select, func
-from models import SolveEvent, User, SolveCount
+from models import SolveBucket, User, SolveCount
 from database import SessionDep
 from providers import listed_providers
 from fastapi import HTTPException
@@ -68,12 +69,12 @@ def _bucket_label(bucket: str):
     """
     fmt, step = BUCKETS[bucket]
     step_seconds = int(step.total_seconds())
-    floored = SolveEvent.solved_at - (SolveEvent.solved_at % step_seconds)
+    floored = SolveBucket.bucket_start - (SolveBucket.bucket_start % step_seconds)
     return func.strftime(fmt, floored, "unixepoch")
 
 
 def _range_filter(query, range: str):
-    """Restrict a SolveEvent query to the last N seconds ("all" -> no filter).
+    """Restrict a rollup query to the last N seconds ("all" -> no filter).
 
     The cutoff is computed here at build time, so the window advances in _ttl-
     second jumps as the cache rebuilds (which is why range is part of the key).
@@ -81,7 +82,8 @@ def _range_filter(query, range: str):
     seconds = RANGES.get(range)
     if seconds is not None:
         cutoff = int(time.time()) - seconds
-        query = query.where(SolveEvent.solved_at >= cutoff)
+        # bucket_start leads the primary key, so this prunes on the index
+        query = query.where(SolveBucket.bucket_start >= cutoff)
     return query
 
 
@@ -104,16 +106,12 @@ def _cache_key(kind: str, bucket: str, range: str) -> str:
 
 
 def _cached(kind: str, bucket: str, range: str, builder, session: SessionDep):
-    validate_range_combo(bucket, range)
     """Shared TTL cache + single-flight rebuild used by both graph endpoints.
 
     `builder(session, bucket, range)` does the actual DB work; we just memoize
     its result per (kind, bucket, range) for _ttl seconds.
     """
-    if bucket not in BUCKETS:
-        bucket = "day"
-    if range not in RANGES:
-        range = "all"
+    validate_range_combo(bucket, range)
 
     key = _cache_key(kind, bucket, range)
     if _expired(key, time.time()):
@@ -163,8 +161,8 @@ def _build_user_series(session: SessionDep, bucket: str, range: str):
         label.label("bucket"),
         User.id,
         User.username,
-        func.count().label("count"),
-    ).join(User, SolveEvent.user_id == User.id)
+        func.sum(SolveBucket.count).label("count"),
+    ).join(User, SolveBucket.user_id == User.id)
     q = _range_filter(q, range).group_by(label, User.id, User.username)
     rows = session.exec(q).all()
 
@@ -207,7 +205,7 @@ def _build_user_score_series(session: SessionDep, bucket: str, range: str):
     for s in based["series"]:
         window_total = sum(s["counts"])
         # anchor so the last point == the user's true all-time total (SolveCount,
-        # which includes the ~200k pre-SolveEvent solves). the missing history
+        # which includes the ~200k pre-history solves). the missing history
         # becomes the flat starting plateau instead of being approximated.
         running = tally.get(s["user_id"], 0) - window_total
         cumulative = []
@@ -222,10 +220,10 @@ def _build_series(session: SessionDep, bucket: str, range: str):
     label = _bucket_label(bucket)
     q = select(
         label.label("bucket"),
-        SolveEvent.captcha_type,
-        func.count().label("count"),
+        SolveBucket.captcha_type,
+        func.sum(SolveBucket.count).label("count"),
     )
-    q = _range_filter(q, range).group_by(label, SolveEvent.captcha_type)
+    q = _range_filter(q, range).group_by(label, SolveBucket.captcha_type)
     rows = session.exec(q).all()
 
     # {label: {slug: count}}

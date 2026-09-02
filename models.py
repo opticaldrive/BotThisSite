@@ -30,3 +30,16 @@ class SolveCount(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", primary_key=True)
     captcha_type: str = Field(primary_key=True)  # matches a provider slug
     count: int = Field(default=0)
+
+
+class SolveBucket(SQLModel, table=True):
+    # 5-minute rollup of SolveEvent, and the only thing the graphs read. It is
+    # a pure function of the history: every row is the count of events in one
+    # (bucket, user, captcha) cell, so it can always be rebuilt from
+    # SolveEvent (see services/rollup.py). Coarser buckets are derived by
+    # flooring bucket_start again, which is why the grain is the finest one
+    # the graphs offer.
+    bucket_start: int = Field(primary_key=True)  # unix ts floored to GRAIN
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    captcha_type: str = Field(primary_key=True)  # matches a provider slug
+    count: int = Field(default=0)
