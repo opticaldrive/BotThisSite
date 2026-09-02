@@ -1,9 +1,10 @@
+import os
 from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 from sqlalchemy import event
 
-sqlite_file_name = "database.db"
+sqlite_file_name = os.getenv("DATABASE_PATH", "database.db")
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}

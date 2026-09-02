@@ -31,6 +31,9 @@ class CaptchaProvider:
     site_key_env: str  # name of the env var holding the public site key
     secret_key_env: str  # name of the env var holding the private secret key
     template: str = "challenges/generic.html"  # override for non-standard captchas
+    # self-hosted captcha servers (cap) need their base url in the widget too,
+    # not just the siteverify call. hosted providers leave this None.
+    api_endpoint: str | None = None
     # Two independent kill-switches. Neither touches the DB, so flipping either
     # back to True restores everything exactly as it was.
     accepting: bool = True  # accept NEW solves? False -> challenge page + verify
@@ -55,6 +58,14 @@ class CaptchaProvider:
     @property
     def secret_key(self) -> str | None:
         return os.getenv(self.secret_key_env)
+
+
+# Where the self-hosted cap server lives. The path segment is the site key cap
+# mints, so the whole base has to move together when the server does.
+CAP_API_ENDPOINT = (
+    os.getenv("CAP_API_ENDPOINT", "https://cap.botme.idk.dunkirk.sh/b07bbba5fe").rstrip("/")
+    + "/"
+)
 
 
 # The one place to register captchas. Add a line, add env vars, done.
@@ -107,12 +118,13 @@ PROVIDERS: dict[str, CaptchaProvider] = {
         CaptchaProvider(
             slug="cap-default",
             name="Cap.js Captcha",
-            verify_url="https://cap.botme.idk.dunkirk.sh/b07bbba5fe/siteverify",
+            verify_url=f"{CAP_API_ENDPOINT}siteverify",
             script_url="https://cdn.jsdelivr.net/npm/cap-widget",
             widget_class="",
             site_key_env="CAP_SITE_KEY",
             secret_key_env="CAP_SECRET_KEY",
             template="challenges/cap.html",
+            api_endpoint=CAP_API_ENDPOINT,
         ),
     ]
 }

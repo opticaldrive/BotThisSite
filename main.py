@@ -59,6 +59,11 @@ async def on_shutdown():
 #     return {"message": "Hello World"}
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 # api routers
 app.include_router(api_leaderboard.router)
 
