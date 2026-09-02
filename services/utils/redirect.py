@@ -4,6 +4,7 @@ Simple redirect to decommission nest bts
 
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
+from get_ip import get_ip
 
 app = FastAPI()
 
@@ -19,5 +20,5 @@ async def catch_all_and_redirect(request: Request, path: str):
 
     if request.url.query:
         redirect_url += f"?{request.url.query}"
-
+    print(get_ip(request))  # debugging
     return RedirectResponse(url=redirect_url, status_code=307)
