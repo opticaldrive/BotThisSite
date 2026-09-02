@@ -107,7 +107,7 @@ PROVIDERS: dict[str, CaptchaProvider] = {
         CaptchaProvider(
             slug="cap-default",
             name="Cap.js Captcha",
-            verify_url="https://cap.bts.zzz.hackclub.app/b07bbba5fe/siteverify",
+            verify_url="https://cap.botme.idk.dunkirk.sh/b07bbba5fe/siteverify",
             script_url="https://cdn.jsdelivr.net/npm/cap-widget",
             widget_class="",
             site_key_env="CAP_SITE_KEY",

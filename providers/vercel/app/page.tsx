@@ -7,5 +7,5 @@ export default function get_homepage(){
     //     // </main>
        
     // )
-    redirect("https://bts.zzz.hackclub.app");
+    redirect("https://botme.idk.dunkirk.sh");
 }
