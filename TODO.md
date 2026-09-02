@@ -1,9 +1,6 @@
-[]prio1: make caching actually sane
-[]s utilize SolveEvents for *something*
-[]sbetter error logging, esp for failed verifications
+
+[*]error logging is sane, no more tokens in prod
 []typing
-[]actually udnerstand fastapi
-[*]scoring
 []more captchas
-[*]sbasic prod on nest
 [] Ratelimits.
+[] protection against token replay attacks

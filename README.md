@@ -22,7 +22,7 @@ I personally feel like this should implode but its not! so good! \
 * Jinja2 templates - for making pages with templates... 
 * SQLite + SQLmodel- databae  
 * Cloudflare Turnstiles - this is the first captcha implemented. 
-* Nest - hosting provider 
+* Oracle cloud free tier VM - hosting provider 
 
 
 ## Setup
