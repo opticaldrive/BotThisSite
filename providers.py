@@ -63,7 +63,7 @@ class CaptchaProvider:
 # Where the self-hosted cap server lives. The path segment is the site key cap
 # mints, so the whole base has to move together when the server does.
 CAP_API_ENDPOINT = (
-    os.getenv("CAP_API_ENDPOINT", "https://cap.botme.idk.dunkirk.sh/b07bbba5fe").rstrip("/")
+    os.getenv("CAP_API_ENDPOINT", "https://cap.dunkirk.sh/b07bbba5fe").rstrip("/")
     + "/"
 )
 
