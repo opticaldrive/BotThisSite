@@ -100,7 +100,14 @@ async def verify_captcha(
         # verify, so a provider having a bad minute buries the journal in the
         # one thing it already knows. One line, and keep the traceback for
         # errors that are actually unexpected.
-        log.warning("%s siteverify unavailable: %r", provider.name, e)
+        # status + message only. repr() of a ClientResponseError carries every
+        # request and response header, which is a 900 character "one line".
+        detail = (
+            f"HTTP {e.status} {e.message}"
+            if isinstance(e, aiohttp.ClientResponseError)
+            else type(e).__name__
+        )
+        log.warning("%s siteverify unavailable: %s", provider.name, detail)
         return {
             "success": False,
             "error-codes": ["internal-error"],
