@@ -51,6 +51,17 @@ def create_db_and_tables():
         for dead in ("ix_solveevent_user_id", "ix_solveevent_captcha_type"):
             conn.exec_driver_sql(f"DROP INDEX IF EXISTS {dead}")
 
+    # Reclaim the WAL. A checkpoint can only reset it when no reader holds a
+    # snapshot, and once solves are flowing there is nearly always one, so a
+    # write this large (dropping an index over millions of rows) would leave a
+    # WAL that never shrinks and that every later read has to search. Startup
+    # is the one moment nothing else is running.
+    raw = engine.raw_connection()
+    try:
+        raw.driver_connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        raw.close()
+
 
 def get_session():
     with Session(engine) as session:
