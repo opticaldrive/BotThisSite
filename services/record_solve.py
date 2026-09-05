@@ -16,12 +16,16 @@ import time
 
 def record_solve(session: SessionDep, name: str, slug: str) -> None:
     """Log the solve: append history (SolveEvent) and bump the tally (SolveCount)."""
-    user = session.exec(select(User).where(User.username == name)).first()
-    if not user:
-        # ratelimist here
-        user = User(username=name)
-        session.add(user)
-        session.flush()  # assigns user.id for new users
+    # get-or-create. the insert goes first on purpose: it takes sqlite's write
+    # lock before this transaction has read anything, so a thread that loses the
+    # race is a clean no-op and the select below still sees the winner's row.
+    # ratelimist here
+    session.execute(
+        sqlite_insert(User)
+        .values(username=name)
+        .on_conflict_do_nothing(index_elements=["username"])
+    )
+    user = session.exec(select(User).where(User.username == name)).one()
 
     # one timestamp for both writes, so the event and its rollup cell can
     # never land in different buckets.

@@ -27,6 +27,21 @@ def _set_sqlite_pragmas(dbapi_conn, conn_record):
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
+    # create_all never alters an existing table, so databases made before
+    # User.username was unique still carry the plain index. Solves are recorded
+    # off the event loop now, which means two threads can race to create the
+    # same new user; the uniqueness is what turns that race into a no-op
+    # instead of a duplicate row. Swap the index in place, idempotently.
+    with engine.begin() as conn:
+        existing = conn.exec_driver_sql(
+            "SELECT sql FROM sqlite_master WHERE type='index' AND name='ix_user_username'"
+        ).scalar()
+        if existing and "UNIQUE" not in existing.upper():
+            conn.exec_driver_sql("DROP INDEX ix_user_username")
+            conn.exec_driver_sql(
+                "CREATE UNIQUE INDEX ix_user_username ON user (username)"
+            )
+
 
 def get_session():
     with Session(engine) as session:

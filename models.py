@@ -4,7 +4,7 @@ import time
 
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    username: str = Field(index=True)
+    username: str = Field(index=True, unique=True)
     # NOTE: counts are NOT stored here anymore. Every solve is a row in
     # SolveEvent, so per-captcha and total counts are derived (see
     # services/leaderboard_cache.py). That means adding a new captcha needs
