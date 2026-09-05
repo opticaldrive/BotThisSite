@@ -51,12 +51,14 @@ async def on_startup():
         logging.getLogger(__name__).info("rollup: wrote %s buckets", written)
     # Every verify makes one of these, so the defaults are the wrong shape:
     # aiohttp would wait five minutes on a slow siteverify while more requests
-    # pile in behind the 100-connection cap. A short timeout turns a struggling
-    # provider into fast per-request failures instead of a queue that grows
-    # until the process falls over.
+    # pile in behind the 100-connection cap. A bounded timeout keeps that queue
+    # from growing until the process falls over. 30s and not less: cap's own
+    # siteverify runs 2.5-8.4s when it is busy, and clients retry on failure,
+    # so a tight ceiling turns one slow call into three more requests.
+    # The point is to bound the queue, not to police latency.
     app.state.http_session = aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=ssl_ctx, limit=256),
-        timeout=aiohttp.ClientTimeout(total=10, connect=3),
+        timeout=aiohttp.ClientTimeout(total=30, connect=5),
     )
 
 

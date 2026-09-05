@@ -16,6 +16,7 @@ from services.utils.get_ip import get_ip
 #
 from providers import CaptchaProvider, get_provider
 
+import asyncio
 import aiohttp
 import logging
 
@@ -93,6 +94,18 @@ async def verify_captcha(
             # record_failed_verify(ip)
             None
         return {"success": success, "username": name}
+    except (asyncio.TimeoutError, aiohttp.ClientError) as e:
+        # The provider being slow or unreachable is an operating condition, not
+        # a surprise. log.exception here writes a ~15 line traceback per failed
+        # verify, so a provider having a bad minute buries the journal in the
+        # one thing it already knows. One line, and keep the traceback for
+        # errors that are actually unexpected.
+        log.warning("%s siteverify unavailable: %r", provider.name, e)
+        return {
+            "success": False,
+            "error-codes": ["internal-error"],
+            "username": name,
+        }
     except Exception as e:
         log.exception("%s validation error: %s", provider.name, e)
         return {
