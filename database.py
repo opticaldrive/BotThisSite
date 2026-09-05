@@ -27,12 +27,13 @@ def _set_sqlite_pragmas(dbapi_conn, conn_record):
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
-    # create_all never alters an existing table, so databases made before
-    # User.username was unique still carry the plain index. Solves are recorded
-    # off the event loop now, which means two threads can race to create the
-    # same new user; the uniqueness is what turns that race into a no-op
-    # instead of a duplicate row. Swap the index in place, idempotently.
+    # create_all makes missing tables but never alters existing ones, so index
+    # changes need doing by hand. Both of these are idempotent.
     with engine.begin() as conn:
+        # user.username became unique. Solves are recorded off the event loop
+        # now, which means two threads can race to create the same new user;
+        # the uniqueness is what turns that race into a no-op instead of a
+        # duplicate row.
         existing = conn.exec_driver_sql(
             "SELECT sql FROM sqlite_master WHERE type='index' AND name='ix_user_username'"
         ).scalar()
@@ -41,6 +42,14 @@ def create_db_and_tables():
             conn.exec_driver_sql(
                 "CREATE UNIQUE INDEX ix_user_username ON user (username)"
             )
+
+        # solveevent is written once per solve and read only by backfill(),
+        # which reads by time. See the note on the model: these two indexes
+        # were charging every solve for queries nobody makes. The pages they
+        # free go back to the freelist and get reused by new rows, so the file
+        # stops growing for a while rather than shrinking on the spot.
+        for dead in ("ix_solveevent_user_id", "ix_solveevent_captcha_type"):
+            conn.exec_driver_sql(f"DROP INDEX IF EXISTS {dead}")
 
 
 def get_session():

@@ -14,9 +14,16 @@ class User(SQLModel, table=True):
 class SolveEvent(SQLModel, table=True):
     # append-only history log. one row per solve, grows forever, never scanned
     # for the leaderboard (that's what SolveCount is for).
+    #
+    # solved_at is the only indexed column, because backfill() is the only
+    # thing that ever reads this table and it reads by time. Indexing user_id
+    # or captcha_type as well cost two extra b-tree writes on every single
+    # solve to answer queries nobody makes: measured at 8.5M rows, dropping
+    # them took writes from 17.5k to 25.2k solves/s and the file from 593MB
+    # to 347MB. Add one back the day a query actually needs it.
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id", index=True)
-    captcha_type: str = Field(index=True)  # matches a provider slug
+    user_id: int = Field(foreign_key="user.id")
+    captcha_type: str = Field()  # matches a provider slug
     solved_at: int = Field(
         index=True, default_factory=lambda: int(time.time())
     )  # Unix timestamps # apparently you can lambda it
