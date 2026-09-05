@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 
 
 from sqlmodel import select
@@ -64,8 +65,10 @@ async def verify_captcha(
     name = clean_data(name)
     token = data.get("token")
     ip = get_ip(request)
-    # the token is a credential, so it stays out of the log.
-    log.info("verify %s for %r from %s", slug, name, ip)
+    # the token is a credential, so it stays out of the log. debug, not info:
+    # this is the hot path, and at solver load an info line here is hundreds of
+    # journald writes a second. Caddy's access log already has the IPs.
+    log.debug("verify %s for %r from %s", slug, name, ip)
 
     # check_failed_verify_allowed(ip)
 
@@ -81,7 +84,11 @@ async def verify_captcha(
         success = await siteverify(provider, token, request.app.state.http_session)
         if success:
             # record_successful_verify(ip)
-            record_solve(session, name, slug)
+            # record_solve is synchronous sqlite: a SELECT, two writes and a
+            # commit. Called directly it would run on the event loop and stall
+            # every other in-flight request for the length of the transaction,
+            # which under WAL contention is up to busy_timeout (5s).
+            await run_in_threadpool(record_solve, session, name, slug)
         else:
             # record_failed_verify(ip)
             None

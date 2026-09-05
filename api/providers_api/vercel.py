@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Header
+from fastapi.concurrency import run_in_threadpool
 
 
 from sqlmodel import select
@@ -58,6 +59,6 @@ async def record_botid_basic(
     name = clean_data(name)
     ip = get_ip(request)
     log.info("botid solve for %r from %s", name, ip)
-    record_solve(session, name, "vercel-botid-basic")
+    await run_in_threadpool(record_solve, session, name, "vercel-botid-basic")
 
     return {"success": True, "username": name}
