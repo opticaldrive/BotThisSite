@@ -49,8 +49,14 @@ async def on_startup():
         written = backfill(session)
     if written:
         logging.getLogger(__name__).info("rollup: wrote %s buckets", written)
+    # Every verify makes one of these, so the defaults are the wrong shape:
+    # aiohttp would wait five minutes on a slow siteverify while more requests
+    # pile in behind the 100-connection cap. A short timeout turns a struggling
+    # provider into fast per-request failures instead of a queue that grows
+    # until the process falls over.
     app.state.http_session = aiohttp.ClientSession(
-        connector=aiohttp.TCPConnector(ssl=ssl_ctx)
+        connector=aiohttp.TCPConnector(ssl=ssl_ctx, limit=256),
+        timeout=aiohttp.ClientTimeout(total=10, connect=3),
     )
 
 
