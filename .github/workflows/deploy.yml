@@ -10,6 +10,9 @@ jobs:
     uses: taciturnaxolotl/dots/.github/workflows/deploy-service.yml@main
     with:
       service: botme
+      # Moved off terebithia (2 cores) to prattle (8). The reusable workflow
+      # still defaults to terebithia, so this has to say so explicitly.
+      host: prattle
       install_command: "env UV_PYTHON_DOWNLOADS=never uv sync --frozen"
       health_url: https://botme.idk.dunkirk.sh/health
       db_path: /var/lib/botme/data/botme.db
