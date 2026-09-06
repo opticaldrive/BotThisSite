@@ -67,6 +67,14 @@ CAP_API_ENDPOINT = (
     + "/"
 )
 
+# siteverify is server-to-server, so it has no reason to use the public name.
+# When cap runs on the same host the public address leaves the interface and
+# comes back in through the reverse proxy: cap answers in ~50ms, the proxied
+# call takes 1-6s once that proxy is busy, and we make it once per solve.
+# Point this at cap's own port and the widget keeps the public URL it needs.
+# Defaults to CAP_API_ENDPOINT, so leaving it unset changes nothing.
+CAP_VERIFY_ENDPOINT = os.getenv("CAP_VERIFY_ENDPOINT", CAP_API_ENDPOINT).rstrip("/") + "/"
+
 
 # The one place to register captchas. Add a line, add env vars, done.
 PROVIDERS: dict[str, CaptchaProvider] = {
@@ -118,7 +126,7 @@ PROVIDERS: dict[str, CaptchaProvider] = {
         CaptchaProvider(
             slug="cap-default",
             name="Cap.js Captcha",
-            verify_url=f"{CAP_API_ENDPOINT}siteverify",
+            verify_url=f"{CAP_VERIFY_ENDPOINT}siteverify",
             script_url="https://cdn.jsdelivr.net/npm/cap-widget",
             widget_class="",
             site_key_env="CAP_SITE_KEY",
