@@ -63,8 +63,7 @@ class CaptchaProvider:
 # Where the self-hosted cap server lives. The path segment is the site key cap
 # mints, so the whole base has to move together when the server does.
 CAP_API_ENDPOINT = (
-    os.getenv("CAP_API_ENDPOINT", "https://cap.dunkirk.sh/b07bbba5fe").rstrip("/")
-    + "/"
+    os.getenv("CAP_API_ENDPOINT", "https://cap.dunkirk.sh/cbe403f57a").rstrip("/") + "/"
 )
 
 # siteverify is server-to-server, so it has no reason to use the public name.
@@ -73,7 +72,9 @@ CAP_API_ENDPOINT = (
 # call takes 1-6s once that proxy is busy, and we make it once per solve.
 # Point this at cap's own port and the widget keeps the public URL it needs.
 # Defaults to CAP_API_ENDPOINT, so leaving it unset changes nothing.
-CAP_VERIFY_ENDPOINT = os.getenv("CAP_VERIFY_ENDPOINT", CAP_API_ENDPOINT).rstrip("/") + "/"
+CAP_VERIFY_ENDPOINT = (
+    os.getenv("CAP_VERIFY_ENDPOINT", CAP_API_ENDPOINT).rstrip("/") + "/"
+)
 
 
 # The one place to register captchas. Add a line, add env vars, done.

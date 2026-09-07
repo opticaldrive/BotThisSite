@@ -20,5 +20,5 @@ async def catch_all_and_redirect(request: Request, path: str):
 
     if request.url.query:
         redirect_url += f"?{request.url.query}"
-    print(get_ip(request))  # debugging
+    # print(get_ip(request))  # debugging
     return RedirectResponse(url=redirect_url, status_code=307)
