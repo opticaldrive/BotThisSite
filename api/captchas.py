@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.concurrency import run_in_threadpool
 
 
 from sqlmodel import select
@@ -8,7 +7,7 @@ from models import User, SolveEvent, SolveCount
 from database import SessionDep
 
 
-from services.record_solve import record_solve
+from services import solve_writer
 
 from services.utils.cleandata import clean_data
 from services.utils.get_ip import get_ip
@@ -85,11 +84,12 @@ async def verify_captcha(
         success = await siteverify(provider, token, request.app.state.http_session)
         if success:
             # record_successful_verify(ip)
-            # record_solve is synchronous sqlite: a SELECT, two writes and a
-            # commit. Called directly it would run on the event loop and stall
-            # every other in-flight request for the length of the transaction,
-            # which under WAL contention is up to busy_timeout (5s).
-            await run_in_threadpool(record_solve, session, name, slug)
+            # Hands the solve to the single writer thread and returns. It used
+            # to run the transaction here on a threadpool thread, which meant
+            # every in-flight verify was another thread competing for sqlite's
+            # write lock, and the queueing for that lock was most of the
+            # endpoint's latency. The solve is durable a batch later, not now.
+            solve_writer.record(name, slug)
         else:
             # record_failed_verify(ip)
             None

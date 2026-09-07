@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Request, Header
-from fastapi.concurrency import run_in_threadpool
 
 
 from sqlmodel import select
@@ -10,7 +9,7 @@ from database import SessionDep
 from services.utils.cleandata import clean_data
 from services.utils.get_ip import get_ip
 
-from services.record_solve import record_solve
+from services import solve_writer
 import os
 import hmac
 import logging
@@ -59,6 +58,8 @@ async def record_botid_basic(
     name = clean_data(name)
     ip = get_ip(request)
     log.info("botid solve for %r from %s", name, ip)
-    await run_in_threadpool(record_solve, session, name, "vercel-botid-basic")
+    # Same queue as the cap path: one writer for the database, or the two of
+    # them go back to competing for sqlite's write lock.
+    solve_writer.record(name, "vercel-botid-basic")
 
     return {"success": True, "username": name}

@@ -18,8 +18,9 @@ ssl_ctx = ssl.create_default_context(
 
 # misc config + core
 # from models import User
-from database import SessionDep, create_db_and_tables, engine
+from database import SessionDep, create_db_and_tables, engine, sqlite_file_name
 from services.rollup import backfill
+from services import solve_writer
 
 # from config import CF_SECRET_KEY
 
@@ -60,11 +61,15 @@ async def on_startup():
         connector=aiohttp.TCPConnector(ssl=ssl_ctx, limit=256),
         timeout=aiohttp.ClientTimeout(total=30, connect=5),
     )
+    # Owns the only connection that writes solves. See services/solve_writer.
+    solve_writer.init(sqlite_file_name)
 
 
 @app.on_event("shutdown")
 async def on_shutdown():
     await app.state.http_session.close()
+    # Flush the queue before the process goes; anything still in it is lost.
+    solve_writer.writer.stop()
 
 
 # app content

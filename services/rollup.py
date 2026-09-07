@@ -3,8 +3,8 @@
 # SolveBucket instead: the same history pre-aggregated into 5-minute cells,
 # roughly three orders of magnitude fewer rows.
 #
-# Two ways in, and they must agree: record_solve() bumps a cell as each solve
-# lands, and backfill() recomputes cells from SolveEvent. Since the rollup is
+# Two ways in, and they must agree: the solve writer bumps cells as batches
+# land, and backfill() recomputes them from SolveEvent. Since the rollup is
 # only ever a function of the history, backfill can always repair it.
 from sqlalchemy import text
 
@@ -14,19 +14,6 @@ GRAIN = 300  # seconds; the finest bucket the graphs offer ("5min")
 def bucket_of(ts: int) -> int:
     """Floor a unix timestamp to the start of its rollup cell."""
     return ts - (ts % GRAIN)
-
-
-# Literal SQL for the same reason record_solve uses it: this runs once per
-# solve, and building the statement cost more than executing it.
-_BUMP_CELL = (
-    "INSERT INTO solvebucket (bucket_start, user_id, captcha_type, count) VALUES (?, ?, ?, 1) "
-    "ON CONFLICT (bucket_start, user_id, captcha_type) DO UPDATE SET count = count + 1"
-)
-
-
-def bump(conn, user_id: int, captcha_type: str, solved_at: int) -> None:
-    """Add one solve to its cell. Takes a Connection; caller commits."""
-    conn.exec_driver_sql(_BUMP_CELL, (bucket_of(solved_at), user_id, captcha_type))
 
 
 def backfill(session) -> int:
