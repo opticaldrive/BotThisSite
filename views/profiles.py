@@ -13,7 +13,7 @@ templates = Jinja2Templates(directory="templates/")
 
 @router.get("/profile")
 @router.get("/p")
-def get_leaderboard(request: Request, session: SessionDep, name: str):
+def get_profile(request: Request, session: SessionDep, name: str):
     # stats = get_stats(session=session)
     # users = stats["data"]
     # if not all:
