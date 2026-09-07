@@ -15,6 +15,9 @@ The site is intentionally sparse until I add CSS, and you should memorize links
 ![A solved turnstile for the user "Demo"](./images/solving.png)
 
 ## Tech Stack:
+Update: Kieran(and maybe a little claude) have optimized. \
+Prod will die if it is not optimized
+
 If premature optimization is a sin, then i should be in heaven for how tossed-together this is. \ 
 I personally feel like this should implode but its not! so good! \
 * Python - the ... language?  
@@ -22,22 +25,18 @@ I personally feel like this should implode but its not! so good! \
 * Jinja2 templates - for making pages with templates... 
 * SQLite + SQLmodel- databae  
 * Cloudflare Turnstiles - this is the first captcha implemented. 
-* Oracle cloud free tier VM - hosting provider 
+* 8 core homelab? details somewhere
 
 
 ## Setup
 * get cloudflare, recaptcha, etc tokens put in .env according to .env.example
-* uv run fastapi dev main.py for dev
+* `uv run fastapi dev main.py` for dev
 
-## Todo
-* Add more captchas 
-* gh shield 
-* better activity stuff
-* "ratelimiting"
-* ratelimit only counts *failed* captcha verifies
-* ratelimit counts how many unique names per ip
+## Todo:
+See TODO.md
 
 ## AI Usage:
+Contributing: Be sane with AI, know what it writes. Denote/label AI contributions somewhere.
 
 * AI was used to help make this, unfortunately.
 * AI was used for assistance when i was stuck/confused how to continue.
