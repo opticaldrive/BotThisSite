@@ -7,9 +7,6 @@
 # lands, and backfill() recomputes cells from SolveEvent. Since the rollup is
 # only ever a function of the history, backfill can always repair it.
 from sqlalchemy import text
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-
-from models import SolveBucket
 
 GRAIN = 300  # seconds; the finest bucket the graphs offer ("5min")
 
@@ -19,21 +16,17 @@ def bucket_of(ts: int) -> int:
     return ts - (ts % GRAIN)
 
 
-def bump(session, user_id: int, captcha_type: str, solved_at: int) -> None:
-    """Add one solve to its cell. Caller commits."""
-    session.execute(
-        sqlite_insert(SolveBucket)
-        .values(
-            bucket_start=bucket_of(solved_at),
-            user_id=user_id,
-            captcha_type=captcha_type,
-            count=1,
-        )
-        .on_conflict_do_update(
-            index_elements=["bucket_start", "user_id", "captcha_type"],
-            set_={"count": SolveBucket.count + 1},
-        )
-    )
+# Literal SQL for the same reason record_solve uses it: this runs once per
+# solve, and building the statement cost more than executing it.
+_BUMP_CELL = (
+    "INSERT INTO solvebucket (bucket_start, user_id, captcha_type, count) VALUES (?, ?, ?, 1) "
+    "ON CONFLICT (bucket_start, user_id, captcha_type) DO UPDATE SET count = count + 1"
+)
+
+
+def bump(conn, user_id: int, captcha_type: str, solved_at: int) -> None:
+    """Add one solve to its cell. Takes a Connection; caller commits."""
+    conn.exec_driver_sql(_BUMP_CELL, (bucket_of(solved_at), user_id, captcha_type))
 
 
 def backfill(session) -> int:
