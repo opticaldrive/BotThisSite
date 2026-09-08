@@ -1,0 +1,18 @@
+{
+  "name": "bunny",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "react": "^0.0.0-experimental-f1f7ed2a-20260904",
+    "react-dom": "^0.0.0-experimental-f1f7ed2a-20260904",
+    "react-refresh": "^0.0.0-experimental-f1f7ed2a-20260904",
+    "react-server-dom-bun": "^0.0.0-experimental-603e6108-20241029"
+  }
+}

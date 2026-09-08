@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BotThisSite</title>
+    <style>
+    :root {
+        color-scheme: light dark;
+    }
+    </style>
+</head>
+<body>
+<h1>BotThisSite</h1>
+<b>Notice: (2026-09-02) bts.zzz.hackclub.app is decommissioned and we are now operating on <a href="https://botme.idk.dunkirk.sh">botme.idk.dunkirk.sh</a><br>
+We apologize for any inconvenience caused by this migration.</b>
+<p>
+We want YOU to bot this site. <br>
+tl;dr solve captcha, number go up, your name in the leaderboard go up. <br>
+Number go up = good.<br>
+</p>
+<h2> Total captchas solved: {{total_solved}}</h2>
+
+<p>
+Links: <br>
+<a href="/leaderboard">Leaderboard</a> <br>
+
+<b>recaptcha is disabled until further notice 3:</b> <br>
+<br>
+put your name here and pick a captcha and we'll just make you the link:
+<form id = "gotonamedcaptcha">
+    <label>
+        Name:
+        <input type="text" id="name" name="name" required>
+    </label>
+    <label>
+        Captcha:
+        <select id="captcha">
+            {% for provider in providers %}
+            <option value="{{provider.challenge_url}}">{{provider.name}}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit">Go solve captchas?</button>
+
+</form>
+<br>
+(or, append ?name=yourname to any captcha link below)<br>
+{% for provider in providers %}
+<a href="{{provider.challenge_url}}">Solve {{provider.name}}</a> <br>
+{% endfor %}
+
+
+
+<script>
+  document.getElementById('gotonamedcaptcha').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    // const slug = document.getElementById('captcha').value;
+    // window.location.href = `/captchas/${slug}?name=${encodeURIComponent(name)}`;
+    const destination = document.getElementById('captcha').value;
+    const url = new URL(destination, window.location.origin);
+    url.searchParams.set('name', name); // this better be url safe
+    window.location.href = url.toString()
+  });
+</script>
+<footer>
+    <small>building this website as we fly it, since 2026<br>
+        <small><i>:3 and here's to another day of it.  </i></small>
+    </small>
+</footer>
+<img src="http://ipv4.games/claim?name=BotThisSite" alt="evil haxxor tracker raygun :3" style="opacity: 0; width: 0; height: 0; position: fixed;">
+<!-- idk does that works ^^ -->
+<!-- It does, infact work i think  - have fun to another rabbithole (this site was actually inspired by ipv4.games, lol, kudos to them)-->
+</body>
+</html>
