@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>BotThisSite Leaderboard</title>
+    <style>
+        table,th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+
+        }
+        :root {
+             color-scheme: light dark;
+        }
+        @media (prefers-color-scheme: dark){
+            table,th, td {
+                border: 1px solid white;
+                border-collapse: collapse;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Leaderboard</h1>
+Total captchas solved: {{total_solved}} <br>
+Last updated: {{cache_age}}s ago. <br> 
+<a href="/leaderboard?all=true">Click here to see all leaderboard rows(default shows 100)</a>
+<a href="/">Go home</a>
+<!-- <p>
+    View:
+    <a href="/leaderboard">Overall</a>
+    {% for provider in providers %}
+    | <a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a>
+    {% endfor %}
+</p> -->
+<table>
+<thead>
+
+    <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>CAPTCHAs Solved</th>
+
+        {% for provider in providers %}
+        {% if selected_captcha is none or provider.slug == selected_captcha %}
+                <th><a href="/leaderboard?captcha={{provider.slug}}">{{provider.name}}</a></th>
+        {% endif %}
+        {% endfor %}
+    </tr>
+</thead>
+
+<tbody>
+
+    {% for user in users %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.total}}</td>
+        {% for provider in providers %}
+        {%if selected_captcha is none or provider.slug == selected_captcha %}
+        <td>{{user.by_type.get(provider.slug, 0)}}</td>
+        {%endif%}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+:3
+</body>
+</html>
