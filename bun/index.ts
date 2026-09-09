@@ -1,4 +1,4 @@
-console.log("Hello via Bunaa!");
+console.log("Hello via Bunsaa!");
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
   routes: {
@@ -16,13 +16,21 @@ const server = Bun.serve({
     // "/api/graphs/user-solves" 
     // "/api/graphs/user-scores" 
     // get the other routes
-
+    // challenges
+    "/captchas/verify/:slug":  {
+      POST: async req => {
+         // verify logic here
+      },
+    },  
+    // "/captchas/:slug": {
+    //   // how does one autogenerate it idk
+    // },
     // example routes leave
     // Dynamic routes
     "/users/:id": req => {
       return new Response(`Hello User ${req.params.id}!`);
     },
-
+    
     // Per-HTTP method handlers
     "/api/posts": {
       GET: () => new Response("List posts"),
