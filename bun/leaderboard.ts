@@ -157,4 +157,4 @@ export function getLeaderboard(): LeaderboardPayload {
 }
 
 
-console.log(JSON.stringify(getLeaderboard(), null, 2));
+// console.log(JSON.stringify(getLeaderboard(), null, 2));

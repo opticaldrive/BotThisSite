@@ -13,9 +13,18 @@ const server = Bun.serve({
       const leaderboardData = getLeaderboard();
       return Response.json(leaderboardData);
     },
-    // "/api/total_captchas":
-    // "/api/total_captchas_json"
-    // graphs
+
+    "/api/total_captchas": req => {
+      const leaderboardData = getLeaderboard();
+      const total = String(leaderboardData.total_solved); 
+      return new Response(total);
+    },
+    "/api/total_captchas_json": req => {
+      const leaderboardData = getLeaderboard();
+      return Response.json({ total_captchas: leaderboardData.total_solved });
+    },
+
+  // graphs
     // "/api/graphs/solves" 
     // "/api/graphs/user-solves" 
     // "/api/graphs/user-scores" 
