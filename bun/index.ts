@@ -1,3 +1,4 @@
+import { getLeaderboard } from "./leaderboard";
 console.log("Hello via Bunsaa!");
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
@@ -8,7 +9,10 @@ const server = Bun.serve({
     "/api/status": new Response("OK"),
     "/health": new Response("ok"),
     // leaderboard and totals
-    // "/api/leaderboard": 
+    "/api/leaderboard": req => {
+      const leaderboardData = getLeaderboard();
+      return Response.json(leaderboardData);
+    },
     // "/api/total_captchas":
     // "/api/total_captchas_json"
     // graphs
