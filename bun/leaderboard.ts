@@ -1,12 +1,6 @@
 import { db, type SolveCount } from "./db";
 
-// Pre-compile a query statement
-const getLeaderboardStmt = db.prepare(`
-  SELECT user_id, captcha_type, count 
-  FROM solve_count 
-  ORDER BY count DESC 
-  LIMIT 10
-`);
+
 
 /*
  * The get leaderboard code is errorneous rn
@@ -70,9 +64,97 @@ const getLeaderboardStmt = db.prepare(`
 
 */
 
-export function getLeaderboard(): SolveCount[] {
-  // .all() returns an array. Casting it with 'as SolveCount[]' gives you full IDE autocompletion
-  return getLeaderboardStmt.all() as SolveCount[];
+// FIX FIX FIX
+// export function getLeaderboard(): SolveCount[] {
+//   // .all() returns an array. Casting it with 'as SolveCount[]' gives you full IDE autocompletion
+//   return getLeaderboardStmt.all() as SolveCount[];
+// }
+
+// console.log(getLeaderboard())
+
+import { db } from "./db";
+
+// Types mapping directly to your target JSON structure
+interface LeaderboardUser {
+  username: string;
+  total: number;
+  by_type: Record<string, number>;
 }
 
-console.log(getLeaderboard())
+interface LeaderboardPayload {
+  ts: number;
+  data: LeaderboardUser[];
+  total_solved: number;
+  cache_age: number;
+}
+
+// Raw row output mapping from SQLite
+interface LeaderboardRow {
+  username: string;
+  total: number;
+  by_type_json: string; // Packed SQLite JSON string
+}
+
+// 1. Compiled high-performance queries
+const getLeaderboardDataStmt = db.prepare(`
+  SELECT 
+    u.username,
+    SUM(sc.count) as total,
+    json_group_object(sc.captcha_type, sc.count) as by_type_json
+  FROM solve_count sc
+  JOIN user u ON sc.user_id = u.id
+  GROUP BY sc.user_id
+  ORDER BY total DESC
+`);
+
+const getTotalSolvedStmt = db.prepare(`
+  SELECT SUM(count) as global_total FROM solve_count
+`);
+
+// 2. Cache variables (30-second TTL)
+let cachedPayload: LeaderboardPayload | null = null;
+let lastCacheFetchTime = 0;
+const CACHE_TTL_MS = 30 * 1000;
+
+/**
+ * Fetches the nested leaderboard data, tracks structural aggregates,
+ * and maintains a 30-second in-memory cache lifecycle.
+ */
+export function getLeaderboard(): LeaderboardPayload {
+  const nowMs = Date.now();
+  const nowSec = nowMs / 1000;
+
+  // Serve from cache if it is still young
+  if (cachedPayload && (nowMs - lastCacheFetchTime) < CACHE_TTL_MS) {
+    return {
+      ...cachedPayload,
+      cache_age: Math.floor((nowMs - lastCacheFetchTime) / 1000)
+    };
+  }
+
+  // Cache is stale or missing; rebuild it from the DB - yes sync query slows down one request i hope??
+  const rawRows = getLeaderboardDataStmt.all() as LeaderboardRow[];
+  const totalSolvedRow = getTotalSolvedStmt.get() as { global_total: number | null };
+  const globalTotal = totalSolvedRow?.global_total ?? 0;
+
+  // Map SQLite JSON strings back to typed JavaScript objects
+  const structuredData: LeaderboardUser[] = rawRows.map(row => ({
+    username: row.username,
+    total: row.total,
+    by_type: JSON.parse(row.by_type_json)
+  }));
+
+  // Save state to cache
+  cachedPayload = {
+    ts: nowSec,
+    data: structuredData,
+    total_solved: globalTotal,
+    cache_age: 0
+  };
+  lastCacheFetchTime = nowMs;
+
+  return cachedPayload;
+}
+
+
+console.log(JSON.stringify(getLeaderboard(), null, 2));
