@@ -8,12 +8,11 @@ const server = Bun.serve({
 
     "/api/status": new Response("OK"),
     "/health": new Response("ok"),
-    // leaderboard and totals
+    // DONE leaderboard and totals
     "/api/leaderboard": req => {
       const leaderboardData = getLeaderboard();
       return Response.json(leaderboardData);
     },
-
     "/api/total_captchas": req => {
       const leaderboardData = getLeaderboard();
       const total = String(leaderboardData.total_solved); 
@@ -24,12 +23,12 @@ const server = Bun.serve({
       return Response.json({ total_captchas: leaderboardData.total_solved });
     },
 
-  // graphs
+  // INCOMPLETE graphs
     // "/api/graphs/solves" 
     // "/api/graphs/user-solves" 
     // "/api/graphs/user-scores" 
-    // get the other routes
-    // challenges
+  // get the other routes
+  // INCOMPLETE challenges
     "/captchas/verify/:slug":  {
       POST: async req => {
          // verify logic here
@@ -39,7 +38,7 @@ const server = Bun.serve({
     //   // how does one autogenerate it idk
     // },
     // example routes leave
-    // Dynamic routes
+    // Dynamic route
     "/users/:id": req => {
       return new Response(`Hello User ${req.params.id}!`);
     },
