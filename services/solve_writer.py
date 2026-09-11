@@ -31,7 +31,6 @@ BATCH_MAX = 200  # solves per transaction
 BATCH_WINDOW = 0.05  # seconds to wait for a batch to fill before writing
 QUEUE_MAX = 50_000  # bounded: a wedged writer must show up as backpressure
 
-_INSERT_EVENT = "INSERT INTO solveevent (user_id, captcha_type, solved_at) VALUES (?, ?, ?)"
 _BUMP_COUNT = (
     "INSERT INTO solvecount (user_id, captcha_type, count) VALUES (?, ?, ?) "
     "ON CONFLICT (user_id, captcha_type) DO UPDATE SET count = count + excluded.count"
@@ -117,17 +116,14 @@ class SolveWriter:
         return batch
 
     def _write(self, batch: list) -> None:
-        events = []
         counts: dict[tuple[int, str], int] = defaultdict(int)
         cells: dict[tuple[int, int, str], int] = defaultdict(int)
         for name, slug, ts in batch:
             uid = self._user_id(name)
-            events.append((uid, slug, ts))
             counts[(uid, slug)] += 1
             cells[(bucket_of(ts), uid, slug)] += 1
 
         self._conn.execute("BEGIN IMMEDIATE")
-        self._conn.executemany(_INSERT_EVENT, events)
         self._conn.executemany(_BUMP_COUNT, [(u, s, n) for (u, s), n in counts.items()])
         self._conn.executemany(_BUMP_CELL, [(b, u, s, n) for (b, u, s), n in cells.items()])
         self._conn.commit()

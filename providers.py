@@ -23,7 +23,7 @@ load_dotenv()  # make SITE_KEY/SECRET_KEY env vars available
 
 @dataclass(frozen=True)
 class CaptchaProvider:
-    slug: str  # url-safe id, e.g. "cf-turnstile". also the SolveEvent.captcha_type
+    slug: str  # url-safe id, e.g. "cf-turnstile". also the SolveCount.captcha_type
     name: str  # human label for the UI, e.g. "Cloudflare Turnstile"
     verify_url: str  # server-side siteverify endpoint
     script_url: str  # <script src> the widget needs
@@ -38,7 +38,7 @@ class CaptchaProvider:
     # back to True restores everything exactly as it was.
     accepting: bool = True  # accept NEW solves? False -> challenge page + verify
     # route 404, and the homepage "solve" links/dropdown hide it (no quota burn,
-    # no token replay). Existing SolveCount/SolveEvent rows are untouched.
+    # no token replay). Existing SolveCount/SolveBucket rows are untouched.
     listed: bool = True  # show on the leaderboard? False -> its column is hidden
     # AND its counts drop out of the grand/per-user totals (kept consistent).
     # probs remove listed lol one day

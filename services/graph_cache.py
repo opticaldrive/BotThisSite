@@ -1,6 +1,6 @@
 # Time-series cache for the graphs page. Reads SolveBucket, the 5-minute
-# rollup of the history (see services/rollup.py), so a rebuild groups a few
-# thousand rows instead of scanning millions of SolveEvent rows. Still cached
+# rollup (see services/rollup.py), so a rebuild groups a few thousand rows
+# instead of the millions of per-solve rows this used to cost. Still cached
 # with a short TTL like leaderboard_cache.py.
 from datetime import datetime, timedelta
 

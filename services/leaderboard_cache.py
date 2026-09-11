@@ -28,8 +28,8 @@ def get_stats(session: SessionDep):
 
 
 def update_stat_cache(session: SessionDep):
-    # Reads the SolveCount tally (~ #users * #captcha types rows), NOT the full
-    # SolveEvent history, so this stays fast no matter how many solves exist.
+    # Reads the SolveCount tally (~ #users * #captcha types rows), which the
+    # writer keeps current, so this stays fast no matter how many solves exist.
     rows = session.exec(
         select(
             User.id,

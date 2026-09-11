@@ -28,7 +28,7 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
     # create_all makes missing tables but never alters existing ones, so index
-    # changes need doing by hand. Both of these are idempotent.
+    # changes need doing by hand. This is idempotent.
     with engine.begin() as conn:
         # user.username became unique. Solves are recorded off the event loop
         # now, which means two threads can race to create the same new user;
@@ -43,19 +43,14 @@ def create_db_and_tables():
                 "CREATE UNIQUE INDEX ix_user_username ON user (username)"
             )
 
-        # solveevent is written once per solve and read only by backfill(),
-        # which reads by time. See the note on the model: these two indexes
-        # were charging every solve for queries nobody makes. The pages they
-        # free go back to the freelist and get reused by new rows, so the file
-        # stops growing for a while rather than shrinking on the spot.
-        for dead in ("ix_solveevent_user_id", "ix_solveevent_captcha_type"):
-            conn.exec_driver_sql(f"DROP INDEX IF EXISTS {dead}")
-
     # Reclaim the WAL. A checkpoint can only reset it when no reader holds a
     # snapshot, and once solves are flowing there is nearly always one, so a
-    # write this large (dropping an index over millions of rows) would leave a
-    # WAL that never shrinks and that every later read has to search. Startup
-    # is the one moment nothing else is running.
+    # WAL grown during an outage would never shrink and every later read would
+    # have to search it. Startup is the one moment nothing else is running.
+    #
+    # Note that solveevent is NOT dropped here. The app stopped writing it, but
+    # deleting 51M rows is a deliberate step, not something a deploy should do
+    # while the solvers are hammering: see services/utils/drop_solveevent.py.
     raw = engine.raw_connection()
     try:
         raw.driver_connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")

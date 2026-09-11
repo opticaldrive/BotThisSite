@@ -1,6 +1,7 @@
 # Graph data endpoints. These read SolveBucket, the 5-minute rollup, much as the
-# leaderboard reads the SolveCount tally: neither one touches the SolveEvent
-# history. Aggregation + caching live in services/graph_cache.py.
+# leaderboard reads the SolveCount tally. Both aggregates are maintained by the
+# solve writer; there is no per-solve history behind them any more.
+# Aggregation + caching live in services/graph_cache.py.
 from fastapi import APIRouter
 
 from database import SessionDep
