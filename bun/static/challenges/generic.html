@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BotThisSite: {{provider.name}} Challenge</title>
-    <script src="{{provider.script_url}}" async defer></script>
+    <!--  todo make api -->
+    <title>BotThisSite: Challenge</title>
+    <script>
+        // set a provisional title from the slug immediately, so the tab isn't
+        // just "Challenge" while the config fetch is in flight
+        const _slug = location.pathname.split("/").pop();
+        if (_slug) document.title = `BotThisSite: ${_slug} Challenge`;
+    </script>
     <style>
         :root {
              color-scheme: light dark;
@@ -11,22 +17,52 @@
 </head>
 <body>
 
-<div class="{{provider.widget_class}}"
-     data-sitekey="{{sitekey}}"
+<div id="widget"
+     data-sitekey=""
      data-callback="onCaptchaSolved"></div>
 
-Faithfully solving this {{provider.name}} for the glory of
-<b>{{name}}</b> <!--if you xss this--><br>
+Faithfully solving this <span id="provider-name">…</span> for the glory of
+<b id="solver-name">…</b> <!--if you xss this--><br>
 <span id="results"></span>
 
 <script>
+    const params = new URLSearchParams(location.search);
+    const slug = location.pathname.split("/").pop();
+    const name = params.get("name") ?? "";
+
+    document.getElementById("solver-name").textContent = name;
+
+    fetch(`/api/captchas/${encodeURIComponent(slug)}`)
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(provider => {
+            document.title = `BotThisSite: ${provider.name} Challenge`;
+            document.getElementById("provider-name").textContent = provider.name;
+
+            const widget = document.getElementById("widget");
+            widget.className = provider.widgetClass;
+            widget.dataset.sitekey = provider.siteKey;
+
+            // inject the provider's script now that we know where it lives
+            const s = document.createElement("script");
+            s.src = provider.scriptUrl;
+            s.async = true;
+            s.defer = true;
+            document.head.appendChild(s);
+        })
+        .catch(err => {
+            document.title = `BotThisSite: ${slug} Challenge`;
+            document.getElementById("results").textContent =
+                `Unknown provider: ${slug}`;
+            console.error(err);
+        });
+
     function onCaptchaSolved(token) {
         console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
 
-        fetch("/captchas/verify/{{provider.slug}}?name={{name | urlencode}}", {
+        fetch(`/captchas/verify/${encodeURIComponent(slug)}?name=${encodeURIComponent(name)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ "token": token })
+            body: JSON.stringify({ token })
         })
         .then(response => response.json())
         .then(data => {
