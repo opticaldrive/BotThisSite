@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BotThisSite: {{provider.name}} Challenge</title>
+    <!-- <script type="module" src="{{provider.script_url}}"></script>
+      -->
+      <script type="module"
+      src="https://cdn.jsdelivr.net/npm/cap-widget@0.1.57"></script>
+
+    <style>
+        :root {
+             color-scheme: light dark;
+        }
+    </style>
+</head>
+<body>
+
+    <cap-widget
+    id="cap"
+    required
+    data-cap-api-endpoint="{{provider.api_endpoint}}">
+</cap-widget>
+
+<br>
+Faithfully solving this {{provider.name}} for the glory of
+<b>{{name}}</b> <!--if you xss this--><br>
+<span id="results"></span>
+<script>
+    document.getElementById("cap").addEventListener("solve", event => {
+        onCaptchaSolved(event.detail.token);
+    });
+    </script>
+<script>
+    function onCaptchaSolved(token) {
+        console.log("mrrrrrrppp meow :3 who's a good kibty for solving a challenge");
+
+        fetch("/captchas/verify/{{provider.slug}}?name={{name | urlencode}}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ "token": token })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const result = document.getElementById("results");
+            if (data.success) {
+                console.log("actually a good kibty??");
+                result.textContent = "Success: True";
+            } else {
+                console.log("hahaha you didnt do it womp womp");
+                result.textContent = "Success: False";
+            }
+        });
+    }
+</script>
+<img src="http://ipv4.games/claim?name=BotThisSite" alt="evil haxxor tracker raygun :3" style="opacity: 0; width: 0; height: 0; position: fixed;">
+<!-- idk does that works ^^ -->
+<!-- It does, infact work i think  - have fun to another rabbithole (this site was actually inspired by ipv4.games, lol, kudos to them)-->
+
+</body>
+</html>
