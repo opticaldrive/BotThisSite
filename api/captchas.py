@@ -1,10 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
-
-
-from sqlmodel import select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-from models import User, SolveEvent, SolveCount
-from database import SessionDep
+from fastapi import APIRouter, Request
 
 
 from services import solve_writer
@@ -58,17 +52,17 @@ async def siteverify(
 
 
 @router.post("/verify/{slug}")
-async def verify_captcha(
-    slug: str, name: str, data: dict, session: SessionDep, request: Request
-):
+async def verify_captcha(slug: str, name: str, data: dict, request: Request):
     provider = get_provider(slug)
     name = clean_data(name)
     token = data.get("token")
-    ip = get_ip(request)
     # the token is a credential, so it stays out of the log. debug, not info:
     # this is the hot path, and at solver load an info line here is hundreds of
     # journald writes a second. Caddy's access log already has the IPs.
-    log.debug("verify %s for %r from %s", slug, name, ip)
+    # get_ip only runs when someone is listening: the args to a log call are
+    # evaluated whether or not the level is enabled.
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug("verify %s for %r from %s", slug, name, get_ip(request))
 
     # check_failed_verify_allowed(ip)
 

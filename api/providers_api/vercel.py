@@ -1,11 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Header
 
 
-from sqlmodel import select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-from models import User, SolveEvent, SolveCount
-from database import SessionDep
-
 from services.utils.cleandata import clean_data
 from services.utils.get_ip import get_ip
 
@@ -32,7 +27,6 @@ router = APIRouter(prefix="/record/vercel", tags=["misc"])  # why on earth was i
 @router.post("/botid-basic")
 async def record_botid_basic(
     name: str,
-    session: SessionDep,
     request: Request,
     x_botid_secret: str | None = Header(
         default=None,
