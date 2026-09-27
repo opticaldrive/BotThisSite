@@ -1,6 +1,8 @@
 services:
   cap:
-    image: tiago2/cap:latest
+    # Pinned to match the widget pin in providers.py: a key minted here on
+    # 3.1.12+ is hashwx, which only widget 0.1.58+ can solve.
+    image: tiago2/cap:3.1.14
     container_name: cap
     ports:
       - "3069:3000"

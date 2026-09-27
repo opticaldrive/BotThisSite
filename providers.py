@@ -128,7 +128,8 @@ PROVIDERS: dict[str, CaptchaProvider] = {
             slug="cap-default",
             name="Cap.js Captcha",
             verify_url=f"{CAP_VERIFY_ENDPOINT}siteverify",
-            script_url="https://cdn.jsdelivr.net/npm/cap-widget",
+            # 0.1.58+ is required to solve hashwx keys (cap 3.1.12+).
+            script_url="https://cdn.jsdelivr.net/npm/cap-widget@0.1.58",
             widget_class="",
             site_key_env="CAP_SITE_KEY",
             secret_key_env="CAP_SECRET_KEY",
