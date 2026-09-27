@@ -21,7 +21,7 @@ This site's premise is "solve the captcha, number go up". BotID has no user
 
 - BotID's client script **only attaches its challenge headers to same-origin
   requests**. Its `fetch` wrapper bails (`return originalFetch(...)`) when the
-  request is cross-origin, so a page on `botme.idk.dunkirk.sh` calling a Vercel
+  request is cross-origin, so a page on `botme.dunkirk.sh` calling a Vercel
   endpoint sends NO BotID headers and `checkBotId()` returns `isBot: true`
   forever. (Confirmed by the Vercel community thread "BotID cross domain -
   isBot always true".)

@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // report the solve to the FastAPI app on Nest, authenticated with a shared
 // secret so randoms can't POST fake solves to /captchas/record directly.
 
-const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL; // e.g. https://botme.idk.dunkirk.sh
+const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL; // e.g. https://botme.dunkirk.sh
 const BOTID_SHARED_SECRET = process.env.BOTID_SHARED_SECRET;
 
 export async function POST(request: NextRequest) {

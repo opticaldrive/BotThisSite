@@ -7,5 +7,5 @@ export default function get_homepage(){
     //     // </main>
        
     // )
-    redirect("https://botme.idk.dunkirk.sh");
+    redirect("https://botme.dunkirk.sh");
 }

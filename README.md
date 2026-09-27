@@ -27,6 +27,7 @@ I personally feel like this should implode but its not! so good!
 * SQLite + SQLmodel- databae  
 * Cloudflare Turnstiles - this is the first captcha implemented. 
 * 8 core homelab? details somewhere
+* behind cf because... load
 
 
 ## Setup

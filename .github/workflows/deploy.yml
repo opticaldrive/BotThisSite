@@ -14,7 +14,7 @@ jobs:
       # still defaults to terebithia, so this has to say so explicitly.
       host: prattle
       install_command: "env UV_PYTHON_DOWNLOADS=never uv sync --frozen"
-      health_url: https://botme.idk.dunkirk.sh/health
+      health_url: https://botme.dunkirk.sh/health
       db_path: /var/lib/botme/data/botme.db
     secrets:
       TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}

@@ -9,7 +9,7 @@ from get_ip import get_ip
 app = FastAPI()
 
 
-TARGET_DOMAIN = "https://botme.idk.dunkirk.sh"
+TARGET_DOMAIN = "https://botme.dunkirk.sh"
 
 
 @app.api_route(
