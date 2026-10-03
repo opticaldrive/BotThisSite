@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // and reports a bot.
 //
 // "Solving" BotThisSite's BotID == being classified as NOT a bot. On success we
-// report the solve to the FastAPI app on Nest, authenticated with a shared
+// report the solve to the FastAPI app, authenticated with a shared
 // secret so randoms can't POST fake solves to /captchas/record directly.
 
 const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL; // e.g. https://botme.dunkirk.sh
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   // const success = !verification.isBot;
   const success = verification.isHuman;
 
-  // "success" is purely the BotID verdict. Recording the solve on Nest is an
+  // "success" is purely the BotID verdict. Recording the solve is an
   // optional second step: when the FastAPI env vars aren't set, we skip it, so
   // you can deploy this shim and test the Success: True/False UI standalone
   // without any FastAPI changes.
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Human (slipped past the invisible detector) -> record the solve on Nest.
+  // Human (slipped past the invisible detector) -> record the solve on fastapi side
   try {
     const res = await fetch(`${FASTAPI_BASE_URL}/captchas/record/vercel/botid-basic?name=${encodeURIComponent(name)}`, {
       method: "POST",

@@ -25,6 +25,7 @@ router = APIRouter(prefix="/record/vercel", tags=["misc"])  # why on earth was i
 
 
 @router.post("/botid-basic")
+@router.get("/botid-basic")
 async def record_botid_basic(
     name: str,
     request: Request,
