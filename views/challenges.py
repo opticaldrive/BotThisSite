@@ -3,8 +3,6 @@ from fastapi.templating import Jinja2Templates
 from services.utils.cleandata import clean_data
 from providers import get_standard_provider
 
-# https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
-
 router = APIRouter(prefix="/captchas", tags=["pages", "challenges"])
 
 templates = Jinja2Templates(directory="templates/")

@@ -1,15 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request, Header
 
-
 from services.utils.cleandata import clean_data
 from services.utils.get_ip import get_ip
-
 from services import solve_writer
+
 import os
 import hmac
 import logging
 
-#
 from providers import CaptchaProvider, get_standard_provider
 
 import aiohttp
@@ -34,8 +32,6 @@ async def record_botid_basic(
         alias="X-BotID-Secret",
     ),
 ):
-    # provider = get_standard_provider("vercel-botid-basic")
-
     stored_secret = os.getenv("BOTID_SHARED_SECRET")
 
     if not stored_secret:

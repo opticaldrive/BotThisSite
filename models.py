@@ -4,12 +4,10 @@ from sqlmodel import Field, SQLModel
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True, unique=True)
-    # NOTE: counts are NOT stored here anymore. They live in SolveCount, one
-    # row per (user, captcha), which is what the leaderboard reads (see
-    # services/leaderboard_cache.py). That means adding a new captcha needs
-    # zero schema changes.
+    # NOTE: captcha solve count is in the aptly named SolveCount. look below
 
 
+# Here lies SolveEvent, from when we didn't have to worry about load
 # There used to be a SolveEvent here: one append-only row per solve, the source
 # both tables below were derived from. It was dropped at 51M rows / 2.2GB, which
 # was the whole database, growing a million rows an hour at solver load. Nothing

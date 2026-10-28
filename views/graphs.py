@@ -1,8 +1,6 @@
 from fastapi import Request, APIRouter
 from fastapi.templating import Jinja2Templates
 
-# https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
-
 router = APIRouter(tags=["pages"])
 
 templates = Jinja2Templates(directory="templates/")

@@ -26,9 +26,6 @@ def get_leaderboard(
         raise HTTPException(404, "nu uh we don't have that captcha")
 
     users = list(stats["data"])
-    # aaaaa help
-    # providers_slugs = {p.slug: p for p in providers}
-    # selected_slug = providers_slugs.get(captcha)
 
     if captcha is not None:
         users.sort(

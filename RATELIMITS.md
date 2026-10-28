@@ -6,5 +6,4 @@ how ratelimits will work:
     2c. A current show of stress is cap.js
 3. build caching service/file of last 2hrs of succesful tokens to prevent replays :(, ttl max 2 hr? idk (this is later cuz lazy)
     3a. Cap.js supposedly has ttl of 2 hr for tokens
-
-
+4. zip bomb

@@ -5,13 +5,11 @@ from database import SessionDep
 from services.leaderboard_cache import get_stats
 from providers import solvable_providers
 
-# https://fastapi.tiangolo.com/tutorial/bigger-applications/#import-apirouter
-
 router = APIRouter(tags=["pages"])
 
 templates = Jinja2Templates(
     directory="templates/"
-)  # todo -  move everything to template
+)  # todo - remove everything from templates
 
 
 @router.get("/")
@@ -27,13 +25,10 @@ def get_homepage(request: Request, session: SessionDep):
     )
 
 
-@router.get("/credits")
-def get_credits(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="credits.html",
-        context={},
-    )
-
-
-# ui views tbd
+# @router.get("/credits")
+# def get_credits(request: Request):
+#     return templates.TemplateResponse(
+#         request=request,
+#         name="credits.html",
+#         context={},
+#     )
