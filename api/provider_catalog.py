@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from providers import PROVIDERS, CaptchaProvider
 
-router = APIRouter(prefix="/api", tags="providers")
+router = APIRouter(prefix="/api", tags=["providers"])
 
 
 def public_provider(provider: CaptchaProvider) -> dict:
