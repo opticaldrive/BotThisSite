@@ -10,7 +10,7 @@ import hmac
 import logging
 
 #
-from providers import CaptchaProvider, get_provider
+from providers import CaptchaProvider, get_standard_provider
 
 import aiohttp
 
@@ -34,7 +34,7 @@ async def record_botid_basic(
         alias="X-BotID-Secret",
     ),
 ):
-    # provider = get_provider("vercel-botid-basic")
+    # provider = get_standard_provider("vercel-botid-basic")
 
     stored_secret = os.getenv("BOTID_SHARED_SECRET")
 

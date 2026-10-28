@@ -7,7 +7,7 @@ from services.utils.cleandata import clean_data
 from services.utils.get_ip import get_ip
 
 #
-from providers import CaptchaProvider, get_provider
+from providers import CaptchaProvider, get_standard_provider
 
 import asyncio
 import aiohttp
@@ -53,7 +53,7 @@ async def siteverify(
 
 @router.post("/verify/{slug}")
 async def verify_captcha(slug: str, name: str, data: dict, request: Request):
-    provider = get_provider(slug)
+    provider = get_standard_provider(slug)
     name = clean_data(name)
     token = data.get("token")
     # the token is a credential, so it stays out of the log. debug, not info:
