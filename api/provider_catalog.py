@@ -9,12 +9,13 @@ def public_provider(provider: CaptchaProvider) -> dict:
     return {
         "slug": provider.slug,
         "name": provider.name,
+        "solve_mode": provider.solve_mode,
         "challenge_url": provider.challenge_url,
+        "submit_url": provider.submit_url,
         "script_url": provider.script_url,
         "widget_class": provider.widget_class,
         "site_key": provider.site_key if standard else None,
-        "api_endpoint": provider.api_endpoint if standard else None,
-        "solve_mode": provider.solve_mode,
+        # "api_endpoint": provider.api_endpoint if standard else None,
     }
 
 
