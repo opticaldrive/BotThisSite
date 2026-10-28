@@ -1,4 +1,5 @@
-
+[] refactor and simplify everything (KISS)
+[] remove redundant/excessive comments - eyesore
 []typing
 []more captchas
 [] Ratelimits.

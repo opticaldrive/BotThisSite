@@ -34,9 +34,9 @@ class CaptchaProvider:
     widget_class: str  # css class the widget script looks for
     site_key_env: str
     secret_key_env: str
-    template: str = "challenges/generic.html"  # override for non-standard captchas
-    # self-hosted captcha servers (cap) need their base url in the widget too,
-    # not just the siteverify call. hosted providers leave this None.
+    template: str = (
+        "challenges/generic.html"  # override for non-standard captchas that we still host challenge page locally
+    )
     api_endpoint: str | None = None
 
     listed: bool = True
