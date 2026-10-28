@@ -11,9 +11,8 @@
 </head>
 <body>
 <h1>BotThisSite</h1>
-<b>Notice: (2026-09-27) botme.idk.dunkirk.sh and bts.zzz.hackclub.app(2026-09-02) are decomissioned and we are now operating on <a href="https://botme.dunkirk.sh">botme.dunkirk.sh</a><br>
-We apologize for any inconvenience caused by this migration.</b>
 <p>
+<i>a competitive captcha solving leaderboard</i><br>
 We want YOU to bot this site. <br>
 tl;dr solve captcha, number go up, your name in the leaderboard go up. <br>
 Number go up = good.<br>
@@ -46,8 +45,11 @@ put your name here and pick a captcha and we'll just make you the link:
 <br>
 (or, append ?name=yourname to any captcha link below)<br>
 {% for provider in providers %}
+<!-- <a href="{{provider.challenge_url}}?name=meow">Solve {{provider.name}}</a> <br> -->
 <a href="{{provider.challenge_url}}">Solve {{provider.name}}</a> <br>
+
 {% endfor %}
+
 
 
 
