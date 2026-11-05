@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import select, desc, func
 from models import User
 from database import SessionDep
-from services.leaderboard_cache import get_stats, captcha_columns
+from services.leaderboard_cache import get_stats
 
 router = APIRouter(prefix="", tags=["pages"])
 

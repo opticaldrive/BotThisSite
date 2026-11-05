@@ -4,7 +4,7 @@ from providers import listed_providers
 from sqlmodel import select, desc, func
 from models import User
 from database import SessionDep
-from services.leaderboard_cache import get_stats, captcha_columns
+from services.leaderboard_cache import get_stats
 
 router = APIRouter(prefix="", tags=["pages"])
 
@@ -41,7 +41,7 @@ def get_leaderboard(
         name="leaderboard.html",
         context={
             "users": users,
-            "providers": captcha_columns(),
+            "providers": listed_providers(),
             "selected_captcha": captcha,
             "total_solved": stats["total_solved"],
             "cache_age": stats["cache_age"],

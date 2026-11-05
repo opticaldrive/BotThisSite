@@ -6,7 +6,13 @@ from providers import listed_providers
 import time
 import threading
 
-_cache = {"ts": 0, "data": None, "total_solved": None, "cache_age": None}
+_cache = {
+    "ts": 0,
+    "data": None,
+    "total_solved": None,
+    "totals_by_type": None,
+    "cache_age": None,
+}
 _ttl = 30
 _lock = threading.Lock()  # single-flight: only one rebuild at a time
 
@@ -28,8 +34,6 @@ def get_stats(session: SessionDep):
 
 
 def update_stat_cache(session: SessionDep):
-    # Reads the SolveCount tally (~ #users * #captcha types rows), which the
-    # writer keeps current, so this stays fast no matter how many solves exist.
     rows = session.exec(
         select(
             User.id,
@@ -39,10 +43,9 @@ def update_stat_cache(session: SessionDep):
         ).join(SolveCount, SolveCount.user_id == User.id)
     ).all()
 
-    # only count captcha types we still show on the leaderboard, so the grand
-    # total and each user's total always equal the sum of the visible columns.
-    # (unlisted providers' rows stay in the DB, just excluded from the view.)
-    shown = {p.slug for p in listed_providers()}
+    providers = listed_providers()
+    totals_by_type = {p.slug: 0 for p in providers}
+    shown = set(p.slug for p in providers)
 
     # build {user_id: {"username":..., "total":..., "by_type": {...}}}
     users_by_id: dict[int, dict] = {}
@@ -55,19 +58,11 @@ def update_stat_cache(session: SessionDep):
         )
         entry["by_type"][captcha_type] = count
         entry["total"] += count
+        totals_by_type[captcha_type] += count
 
     users = sorted(users_by_id.values(), key=lambda u: u["total"], reverse=True)
 
     _cache["data"] = users
     _cache["ts"] = time.time()
     _cache["total_solved"] = sum(u["total"] for u in users)
-
-
-# the captcha types to show as columns on the leaderboard, in registry order.
-# unlisted providers are hidden here but their counts remain in the DB.
-
-# WHY DOES THIS EXIST THIS IS SO DUMB WHY ARE WE REDIRECTING STUFF
-
-
-def captcha_columns():
-    return listed_providers()
+    _cache["totals_by_type"] = totals_by_type
