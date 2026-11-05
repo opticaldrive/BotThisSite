@@ -8,7 +8,6 @@ import os
 import hmac
 import logging
 
-from providers import CaptchaProvider, get_standard_provider
 
 import aiohttp
 

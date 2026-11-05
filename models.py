@@ -7,17 +7,6 @@ class User(SQLModel, table=True):
     # NOTE: captcha solve count is in the aptly named SolveCount. look below
 
 
-# Here lies SolveEvent, from when we didn't have to worry about load
-# There used to be a SolveEvent here: one append-only row per solve, the source
-# both tables below were derived from. It was dropped at 51M rows / 2.2GB, which
-# was the whole database, growing a million rows an hour at solver load. Nothing
-# read it. The two aggregates say the same thing in 27k rows, and the writer
-# maintains both in one transaction per batch, so they cannot drift apart.
-#
-# What that costs: these are primary data now, with nothing to rebuild them
-# from. A writer bug is permanent rather than repairable.
-
-
 class SolveCount(SQLModel, table=True):
     # running tally per (user, captcha). incremented on every solve so the
     # leaderboard reads ~ (#users * #captcha types) tiny rows instead of
@@ -25,6 +14,9 @@ class SolveCount(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", primary_key=True)
     captcha_type: str = Field(primary_key=True)  # matches a provider slug
     count: int = Field(default=0)
+
+
+# todo: find a way to automatically sum all solves on one captcha_type.
 
 
 class SolveBucket(SQLModel, table=True):

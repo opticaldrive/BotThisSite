@@ -1,8 +1,6 @@
 from fastapi import Request, APIRouter, HTTPException
 from fastapi.templating import Jinja2Templates
 from providers import listed_providers
-from sqlmodel import select, desc, func
-from models import User
 from database import SessionDep
 from services.leaderboard_cache import get_stats
 
@@ -21,7 +19,7 @@ def get_leaderboard(
 ):
     stats = get_stats(session=session)
 
-    providers = listed_providers()  # iclllllllllll this
+    providers = listed_providers()
     if captcha is not None and captcha not in {p.slug for p in providers}:
         raise HTTPException(404, "nu uh we don't have that captcha")
 
@@ -41,7 +39,7 @@ def get_leaderboard(
         name="leaderboard.html",
         context={
             "users": users,
-            "providers": listed_providers(),
+            "providers": providers,
             "selected_captcha": captcha,
             "total_solved": stats["total_solved"],
             "cache_age": stats["cache_age"],

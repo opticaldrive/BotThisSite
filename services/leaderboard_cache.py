@@ -58,7 +58,9 @@ def update_stat_cache(session: SessionDep):
         )
         entry["by_type"][captcha_type] = count
         entry["total"] += count
-        totals_by_type[captcha_type] += count
+        totals_by_type[
+            captcha_type
+        ] += count  # maybe we can do this on orm/db side, not on cache builds.
 
     users = sorted(users_by_id.values(), key=lambda u: u["total"], reverse=True)
 

@@ -1,7 +1,4 @@
 from fastapi import APIRouter
-
-from sqlmodel import select, desc, func
-from models import User
 from database import SessionDep
 
 router = APIRouter(prefix="/api", tags=["stats"])

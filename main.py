@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import aiohttp
 
-# aiohttp ssl sob macos issues ahhh
+# aiohttp ssl sob macos issues ahhh - do not remove or i will be sad
 import certifi
 import ssl
 
@@ -11,7 +11,6 @@ ssl_ctx = ssl.create_default_context(
 
 
 # misc config + core
-# from models import User
 from database import create_db_and_tables, sqlite_file_name
 from services import solve_writer
 
