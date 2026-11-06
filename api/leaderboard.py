@@ -22,3 +22,9 @@ def get_total_captchas_json(session: SessionDep):
     stats = get_stats(session=session)
     # return stats["total_solved"]
     return {"total_solved": stats["total_solved"]}
+
+
+@router.get("/totals_by_type_json")
+def get_total_captchas_by_type_json(session: SessionDep):
+    stats = get_stats(session=session)
+    return stats["totals_by_type"]
