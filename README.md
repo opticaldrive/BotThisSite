@@ -14,6 +14,16 @@ The site is intentionally sparse until I add CSS, and you should memorize links.
 ![leaderboard](./images/leaderboard.png)\
 ![A solved Turnstile for the user "Demo"](./images/solving.png)
 
+## CAPTCHAs Solved Stats:
+
+| Total Solved         | ![CAPTCHAs Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotal_captchas_json&query=%24.total_solved&label=Total%20CAPTCHAs%20Solved&color=purple)                                  |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cloudflare Turnstile | ![Cloudflare Turnstiles Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotals_by_type_json&query=%24%5B%22cf-turnstile%22%5D&label=Cloudflare%20Turnstiles%20Solved&color=orange)   |
+| Recaptcha v2         | ![reCAPTCHA v2 Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotals_by_type_json&query=%24%5B%22recaptcha-v2%22%5D&label=reCAPTCHA%20v2%20Solved&color=orange)                     |
+| Vercel BotID Basic   | ![Vercel BotID Basic Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotals_by_type_json&query=%24%5B%22vercel-botid-basic%22%5D&label=Vercel%20BotID%20Basic%20Solved&color=orange) |
+| hCaptcha             | ![hCaptcha Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotals_by_type_json&query=%24%5B%22hcaptcha%22%5D&label=hCaptcha%20Solved&color=orange)                                   |
+| Cap                  |  ![Cap.js Captcha Solved](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbotme.dunkirk.sh%2Fapi%2Ftotals_by_type_json&query=%24%5B%22cap-default%22%5D&label=Cap.js%20Captcha%20Solved&color=orange)                 |
+
 ## Tech Stack:
 Update: Kieran has optimized, thank you.  
 Prod will die if it is not optimized.  
